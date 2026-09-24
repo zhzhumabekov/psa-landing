@@ -18,6 +18,8 @@ const translations = {
     "nav.news": "Новости",
     "nav.contacts": "Контакты",
     "header.login": "Войти",
+    "header.org_line1": "Полномочный орган",
+    "header.org_line2": "Правительства РК",
     "hero.eyebrow": "Полномочный орган Правительства Республики Казахстан",
     "hero.title": "Представляем интересы государства в соглашениях о разделе продукции",
     "hero.subtitle": "ТОО «PSA» — Полномочный орган Правительства Республики Казахстан в проектах Кашаган, Карачаганак и Дунга.",
@@ -94,6 +96,8 @@ const translations = {
     "nav.news": "Жаңалықтар",
     "nav.contacts": "Байланыс",
     "header.login": "Кіру",
+    "header.org_line1": "Қазақстан Республикасы",
+    "header.org_line2": "Үкіметінің өкілетті органы",
     "hero.eyebrow": "Қазақстан Республикасы Үкіметінің өкілетті органы",
     "hero.title": "Өнімді бөлу туралы келісімдерде мемлекет мүддесін білдіреміз",
     "hero.subtitle": "«PSA» ЖШС — Қашаған, Қарашығанақ және Дунга жобаларында Қазақстан Республикасы Үкіметінің өкілетті органы.",
@@ -148,6 +152,8 @@ const translations = {
     "nav.news": "News",
     "nav.contacts": "Contacts",
     "header.login": "Log in",
+    "header.org_line1": "Authorized body",
+    "header.org_line2": "of the RK Government",
     "hero.eyebrow": "Authorized body of the Government of the Republic of Kazakhstan",
     "hero.title": "Representing the state's interests in production sharing agreements",
     "hero.subtitle": "PSA LLP is the authorized body of the Government of the Republic of Kazakhstan in the Kashagan, Karachaganak and Dunga projects.",
@@ -274,7 +280,7 @@ const projectDetails = {
   },
 };
 
-let currentLang = "ru";
+let currentLang = "kz";
 let openProjectId = null;
 
 function translate(key) {

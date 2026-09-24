@@ -199,6 +199,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border-left: 1px solid var(--border-200);
   padding-left: var(--space-2);
 }
+.logo-caption-line { display: block; }
 @media (min-width: 640px) {
   .logo-caption { display: block; }
 }
