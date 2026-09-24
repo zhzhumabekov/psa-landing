@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}{{ entry.title }} — «PSA» ЖШС{% endblock %}
+{% block description %}{{ entry.body|striptags|truncatewords:30 }}{% endblock %}
+
+{% block content %}
+
+  <!-- ===== МЕСТНОЕ СОДЕРЖАНИЕ: ЗАПИСЬ ===== -->
+  <section class="local-content local-content-detail" id="local-content-detail">
+    <div class="container container--narrow">
+      <a href="{% url 'local_content_page' %}" class="back-link">← Местное содержание</a>
+
+      <p class="eyebrow">Местное содержание</p>
+      <h1 class="section-title">{{ entry.title }}</h1>
+      <p class="page-lead">{{ entry.date|date:"d E Y" }} г.</p>
+
+      {% if entry.body %}<div class="feed-item-text detail-body">{{ entry.body|safe }}</div>{% endif %}
+    </div>
+  </section>
+
+{% endblock %}

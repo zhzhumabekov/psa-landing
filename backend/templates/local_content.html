@@ -16,8 +16,9 @@
         {% for entry in local_content_entries %}
         <article class="feed-item">
           <div class="feed-item-meta"><span>{{ entry.date|date:"d E Y" }} г.</span></div>
-          <h3 class="feed-item-title">{{ entry.title }}</h3>
-          {% if entry.body %}<p class="feed-item-text">{{ entry.body }}</p>{% endif %}
+          <h3 class="feed-item-title"><a href="{% url 'local_content_detail' entry.pk %}">{{ entry.title }}</a></h3>
+          {% if entry.body %}<div class="feed-item-text">{{ entry.body|truncatewords_html:25 }}</div>{% endif %}
+          <a class="feed-item-link" href="{% url 'local_content_detail' entry.pk %}">Читать полностью →</a>
         </article>
         {% empty %}
         <p class="feed-empty">Пока нет опубликованных материалов.</p>

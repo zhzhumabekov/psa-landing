@@ -1,4 +1,8 @@
-from django.shortcuts import render
+from django.contrib.admin.views.decorators import staff_member_required
+from django.core.files.storage import default_storage
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.views.decorators.http import require_POST
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
@@ -23,6 +27,12 @@ def local_content_page(request):
     return render(request, "local_content.html", {"local_content_entries": LocalContentEntry.objects.all()})
 
 
+# Отдельная страница на каждую запись «Местное содержание».
+def local_content_detail(request, pk):
+    entry = get_object_or_404(LocalContentEntry, pk=pk)
+    return render(request, "local_content_detail.html", {"entry": entry})
+
+
 def procurement_page(request):
     return render(request, "procurement.html", {"procurement_entries": ProcurementEntry.objects.all()})
 
@@ -33,6 +43,28 @@ def documents_page(request):
 
 def news_page(request):
     return render(request, "news.html", {"news_entries": NewsEntry.objects.all()})
+
+
+MAX_UPLOAD_IMAGE_SIZE = 8 * 1024 * 1024  # 8MB
+
+
+# Загрузка картинок из редактора Quill (content/widgets.py). Доступно
+# только сотрудникам (staff_member_required — та же проверка, что и у
+# /admin/), не публичный эндпоинт: без этого кто угодно мог бы заливать
+# произвольные файлы на сервер.
+@staff_member_required
+@require_POST
+def quill_image_upload(request):
+    file = request.FILES.get("image")
+    if not file:
+        return JsonResponse({"error": "Файл не передан."}, status=400)
+    if not (file.content_type or "").startswith("image/"):
+        return JsonResponse({"error": "Разрешены только изображения."}, status=400)
+    if file.size > MAX_UPLOAD_IMAGE_SIZE:
+        return JsonResponse({"error": "Файл слишком большой (максимум 8МБ)."}, status=400)
+
+    path = default_storage.save(f"quill_uploads/{file.name}", file)
+    return JsonResponse({"url": default_storage.url(path)})
 
 
 # Публичное чтение для всех, запись — только через /admin/ (сюда никакого

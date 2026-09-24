@@ -17,7 +17,7 @@
         <article class="feed-item">
           <div class="feed-item-meta"><span>{{ entry.date|date:"d E Y" }} г.</span></div>
           <h3 class="feed-item-title">{{ entry.title }}</h3>
-          {% if entry.body %}<p class="feed-item-text">{{ entry.body }}</p>{% elif entry.excerpt %}<p class="feed-item-text">{{ entry.excerpt }}</p>{% endif %}
+          {% if entry.body %}<div class="feed-item-text">{{ entry.body|safe }}</div>{% elif entry.excerpt %}<p class="feed-item-text">{{ entry.excerpt }}</p>{% endif %}
         </article>
         {% empty %}
         <p class="feed-empty">Пока нет опубликованных новостей.</p>

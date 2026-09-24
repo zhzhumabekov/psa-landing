@@ -20,7 +20,7 @@
             {% if entry.deadline %}<span>До {{ entry.deadline|date:"d E Y" }} г.</span>{% endif %}
           </div>
           <h3 class="feed-item-title">{{ entry.title }}</h3>
-          {% if entry.description %}<p class="feed-item-text">{{ entry.description }}</p>{% endif %}
+          {% if entry.description %}<div class="feed-item-text">{{ entry.description|safe }}</div>{% endif %}
           {% if entry.url %}<a class="feed-item-link" href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">Подробнее ↗</a>{% endif %}
         </article>
         {% empty %}
