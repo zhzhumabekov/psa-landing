@@ -292,7 +292,30 @@ const projectDetails = {
   },
 };
 
-let currentLang = "kz";
+// Каждая страница сайта — отдельная полная загрузка (Django рендерит их
+// по отдельности, это не SPA), поэтому выбор языка запоминаем в
+// localStorage — иначе при переходе по меню/обновлении страницы язык
+// всегда сбрасывался бы на дефолтный казахский.
+const LANG_STORAGE_KEY = "psa-lang";
+
+function getStoredLang() {
+  try {
+    return localStorage.getItem(LANG_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function setStoredLang(lang) {
+  try {
+    localStorage.setItem(LANG_STORAGE_KEY, lang);
+  } catch {
+    // хранилище недоступно (приватный режим и т.п.) — просто не запоминаем
+  }
+}
+
+const storedLang = getStoredLang();
+let currentLang = translations[storedLang] ? storedLang : "kz";
 let openProjectId = null;
 
 function translate(key) {
@@ -302,6 +325,7 @@ function translate(key) {
 function applyLanguage(lang) {
   if (!translations[lang]) return;
   currentLang = lang;
+  setStoredLang(lang);
   document.documentElement.lang = lang;
 
   document.querySelectorAll("[data-i18n]").forEach((el) => {
