@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="kz">
 <head>
@@ -8,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=PT+Sans:wght@400;700&family=PT+Mono&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
 
@@ -228,6 +229,101 @@
     </div>
   </section>
 
+  <!-- ===== МЕСТНОЕ СОДЕРЖАНИЕ ===== -->
+  <section class="local-content" id="local-content">
+    <div class="container">
+      <p class="eyebrow" data-i18n="local_content.eyebrow">Местное содержание</p>
+      <h2 class="section-title" data-i18n="local_content.title">Развитие казахстанского содержания</h2>
+      <p class="page-lead" data-i18n="local_content.lead">Материалы о выполнении обязательств по казахстанскому содержанию в проектах СРП.</p>
+
+      <div class="feed-list">
+        {% for entry in local_content_entries %}
+        <article class="feed-item">
+          <div class="feed-item-meta"><span>{{ entry.date|date:"d E Y" }} г.</span></div>
+          <h3 class="feed-item-title">{{ entry.title }}</h3>
+          {% if entry.body %}<p class="feed-item-text">{{ entry.body }}</p>{% endif %}
+        </article>
+        {% empty %}
+        <p class="feed-empty">Пока нет опубликованных материалов.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ЗАКУПКИ ===== -->
+  <section class="procurement" id="procurement">
+    <div class="container">
+      <p class="eyebrow" data-i18n="procurement.eyebrow">Закупки</p>
+      <h2 class="section-title" data-i18n="procurement.title">Закупки товаров, работ и услуг</h2>
+      <p class="page-lead" data-i18n="procurement.lead">Действующие и завершённые процедуры закупок ТОО «PSA».</p>
+
+      <div class="feed-list">
+        {% for entry in procurement_entries %}
+        <article class="feed-item">
+          <div class="feed-item-meta">
+            <span class="badge{% if entry.status == 'Завершён' %} is-closed{% endif %}">{{ entry.status }}</span>
+            {% if entry.deadline %}<span>До {{ entry.deadline|date:"d E Y" }} г.</span>{% endif %}
+          </div>
+          <h3 class="feed-item-title">{{ entry.title }}</h3>
+          {% if entry.description %}<p class="feed-item-text">{{ entry.description }}</p>{% endif %}
+          {% if entry.url %}<a class="feed-item-link" href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">Подробнее ↗</a>{% endif %}
+        </article>
+        {% empty %}
+        <p class="feed-empty">Пока нет объявленных закупок.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ДОКУМЕНТЫ ===== -->
+  <section class="documents" id="documents">
+    <div class="container">
+      <p class="eyebrow" data-i18n="documents.eyebrow">Документы</p>
+      <h2 class="section-title" data-i18n="documents.title">Документы</h2>
+      <p class="page-lead" data-i18n="documents.lead">Нормативные акты, отчёты и другие официальные документы.</p>
+
+      <div class="feed-list">
+        {% for entry in document_entries %}
+        <article class="feed-item">
+          <div class="feed-item-meta">
+            {% if entry.category %}<span>{{ entry.category }}</span>{% endif %}
+            {% if entry.date %}<span>{{ entry.date|date:"d E Y" }} г.</span>{% endif %}
+          </div>
+          <h3 class="feed-item-title">{{ entry.title }}</h3>
+          {% if entry.file %}
+            <a class="feed-item-link" href="{{ entry.file.url }}" target="_blank" rel="noopener noreferrer">Открыть документ ↗</a>
+          {% elif entry.url %}
+            <a class="feed-item-link" href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">Открыть документ ↗</a>
+          {% endif %}
+        </article>
+        {% empty %}
+        <p class="feed-empty">Пока нет опубликованных документов.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== НОВОСТИ ===== -->
+  <section class="news" id="news">
+    <div class="container">
+      <p class="eyebrow" data-i18n="news.eyebrow">Новости</p>
+      <h2 class="section-title" data-i18n="news.title">Новости</h2>
+      <p class="page-lead" data-i18n="news.lead">Новости компании и проектов.</p>
+
+      <div class="feed-list">
+        {% for entry in news_entries %}
+        <article class="feed-item">
+          <div class="feed-item-meta"><span>{{ entry.date|date:"d E Y" }} г.</span></div>
+          <h3 class="feed-item-title">{{ entry.title }}</h3>
+          {% if entry.body %}<p class="feed-item-text">{{ entry.body }}</p>{% elif entry.excerpt %}<p class="feed-item-text">{{ entry.excerpt }}</p>{% endif %}
+        </article>
+        {% empty %}
+        <p class="feed-empty">Пока нет опубликованных новостей.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
   <!-- ===== КОНТАКТЫ ===== -->
   <section class="contacts" id="contacts">
     <div class="container">
@@ -271,7 +367,7 @@
   <div class="project-modal-body" id="project-modal-body"></div>
 </dialog>
 
-<script src="script.js" defer></script>
+<script src="{% static 'script.js' %}" defer></script>
 
 </body>
 </html>

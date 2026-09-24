@@ -717,6 +717,92 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 
 /* =========================================================
+   Местное содержание / Закупки / Документы / Новости
+   (контент — с бэкенда на Django, см. backend/, рендерится в script.js)
+   ========================================================= */
+.local-content, .documents { background: var(--surface-100); }
+.procurement, .news { background: var(--surface-0); }
+.local-content, .procurement, .documents, .news { padding-block: var(--space-6); }
+
+.page-lead {
+  font-size: 16px;
+  line-height: 26px;
+  color: var(--text-secondary);
+  max-width: 60ch;
+  margin-bottom: var(--space-5);
+}
+
+.feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.feed-loading,
+.feed-empty {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.feed-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  background: var(--surface-0);
+  border: 1px solid var(--border-200);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+.feed-item-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--teal-600);
+}
+
+.feed-item-meta .badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: rgba(46, 125, 91, 0.12);
+  color: var(--state-success);
+}
+.feed-item-meta .badge.is-closed {
+  background: var(--border-200);
+  color: var(--text-secondary);
+}
+
+.feed-item-title {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.3;
+  color: var(--ink-900);
+}
+
+.feed-item-text {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--text-secondary);
+}
+
+.feed-item-link {
+  align-self: flex-start;
+  margin-top: var(--space-1);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--steel-700);
+  transition: color var(--transition-fast);
+}
+.feed-item-link:hover { color: var(--ink-900); }
+
+/* =========================================================
    Контакты
    ========================================================= */
 .contacts {

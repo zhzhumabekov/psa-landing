@@ -70,6 +70,18 @@ const translations = {
     "partner.kazenergy.tag": "Отраслевая ассоциация",
     "partner.kazenergy.title": "KAZENERGY",
     "partner.kazenergy.text": "Ассоциация, содействующая развитию топливно-энергетического комплекса Казахстана.",
+    "local_content.eyebrow": "Местное содержание",
+    "local_content.title": "Развитие казахстанского содержания",
+    "local_content.lead": "Материалы о выполнении обязательств по казахстанскому содержанию в проектах СРП.",
+    "procurement.eyebrow": "Закупки",
+    "procurement.title": "Закупки товаров, работ и услуг",
+    "procurement.lead": "Действующие и завершённые процедуры закупок ТОО «PSA».",
+    "documents.eyebrow": "Документы",
+    "documents.title": "Документы",
+    "documents.lead": "Нормативные акты, отчёты и другие официальные документы.",
+    "news.eyebrow": "Новости",
+    "news.title": "Новости",
+    "news.lead": "Новости компании и проектов.",
     "contacts.eyebrow": "Связаться с нами",
     "contacts.title": "Контакты",
     "contacts.lead": "Заполните форму, и мы ответим на ваше обращение.",
@@ -493,6 +505,7 @@ if (contactForm) {
     document.getElementById(id).addEventListener("input", () => setFieldError(id, ""));
   });
 }
+
 
 /* ---------- Инициализация ---------- */
 
