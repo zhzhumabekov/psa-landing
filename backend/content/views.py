@@ -11,16 +11,28 @@ from .serializers import (
 )
 
 
-# Главная страница — серверный рендеринг через шаблонизатор (не JS fetch,
-# см. templates/index.html): контент 4 разделов приходит прямо из БД.
+# Главная страница: Hero/О компании/Проекты/Партнёры/Контакты — статичный
+# контент, без обращений к БД.
 def home(request):
-    context = {
-        "local_content_entries": LocalContentEntry.objects.all(),
-        "procurement_entries": ProcurementEntry.objects.all(),
-        "document_entries": DocumentEntry.objects.all(),
-        "news_entries": NewsEntry.objects.all(),
-    }
-    return render(request, "index.html", context)
+    return render(request, "index.html")
+
+
+# Местное содержание/Закупки/Документы/Новости — отдельные страницы,
+# каждая рендерит свою модель через шаблонизатор (не JS fetch).
+def local_content_page(request):
+    return render(request, "local_content.html", {"local_content_entries": LocalContentEntry.objects.all()})
+
+
+def procurement_page(request):
+    return render(request, "procurement.html", {"procurement_entries": ProcurementEntry.objects.all()})
+
+
+def documents_page(request):
+    return render(request, "documents.html", {"document_entries": DocumentEntry.objects.all()})
+
+
+def news_page(request):
+    return render(request, "news.html", {"news_entries": NewsEntry.objects.all()})
 
 
 # Публичное чтение для всех, запись — только через /admin/ (сюда никакого

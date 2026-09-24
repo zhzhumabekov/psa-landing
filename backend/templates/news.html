@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Жаңалықтар — «PSA» ЖШС{% endblock %}
+{% block description %}«PSA» ЖШС және оның жобаларының жаңалықтары.{% endblock %}
+
+{% block content %}
+
+  <!-- ===== НОВОСТИ ===== -->
+  <section class="news" id="news">
+    <div class="container">
+      <p class="eyebrow" data-i18n="news.eyebrow">Новости</p>
+      <h1 class="section-title" data-i18n="news.title">Новости</h1>
+      <p class="page-lead" data-i18n="news.lead">Новости компании и проектов.</p>
+
+      <div class="feed-list">
+        {% for entry in news_entries %}
+        <article class="feed-item">
+          <div class="feed-item-meta"><span>{{ entry.date|date:"d E Y" }} г.</span></div>
+          <h3 class="feed-item-title">{{ entry.title }}</h3>
+          {% if entry.body %}<p class="feed-item-text">{{ entry.body }}</p>{% elif entry.excerpt %}<p class="feed-item-text">{{ entry.excerpt }}</p>{% endif %}
+        </article>
+        {% empty %}
+        <p class="feed-empty">Пока нет опубликованных новостей.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+{% endblock %}

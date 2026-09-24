@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Жергілікті қамту — «PSA» ЖШС{% endblock %}
+{% block description %}«PSA» ЖШС жобаларындағы қазақстандық қамтуды дамыту жөніндегі бақылау туралы ақпарат.{% endblock %}
+
+{% block content %}
+
+  <!-- ===== МЕСТНОЕ СОДЕРЖАНИЕ ===== -->
+  <section class="local-content" id="local-content">
+    <div class="container">
+      <p class="eyebrow" data-i18n="local_content.eyebrow">Местное содержание</p>
+      <h1 class="section-title" data-i18n="local_content.title">Развитие казахстанского содержания</h1>
+      <p class="page-lead" data-i18n="local_content.lead">Материалы о выполнении обязательств по казахстанскому содержанию в проектах СРП.</p>
+
+      <div class="feed-list">
+        {% for entry in local_content_entries %}
+        <article class="feed-item">
+          <div class="feed-item-meta"><span>{{ entry.date|date:"d E Y" }} г.</span></div>
+          <h3 class="feed-item-title">{{ entry.title }}</h3>
+          {% if entry.body %}<p class="feed-item-text">{{ entry.body }}</p>{% endif %}
+        </article>
+        {% empty %}
+        <p class="feed-empty">Пока нет опубликованных материалов.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+{% endblock %}

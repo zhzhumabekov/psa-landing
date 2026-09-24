@@ -347,12 +347,22 @@ if (navToggle && mainNav) {
 
 /* ---------- 1. Плавный скролл по якорным ссылкам ---------- */
 
-document.querySelectorAll('a[href^="#"]').forEach((link) => {
+// Ссылки в шапке общие для всех страниц (base.html) и указывают на разделы
+// главной через {% url 'home' %}#about — т.е. реальный href вида "/#about".
+// Плавный скролл включаем только если ссылка ведёт на ТЕКУЩУЮ страницу;
+// если якорь ведёт на другую страницу — даём браузеру перейти как обычно
+// (там сработает нативный переход к якорю после загрузки).
+document.querySelectorAll('a[href*="#"]').forEach((link) => {
   link.addEventListener("click", (event) => {
-    const hash = link.getAttribute("href");
-    if (!hash || hash === "#") return;
+    let url;
+    try {
+      url = new URL(link.href);
+    } catch {
+      return;
+    }
+    if (!url.hash || url.pathname !== window.location.pathname) return;
 
-    const target = document.querySelector(hash);
+    const target = document.querySelector(url.hash);
     if (!target) return;
 
     event.preventDefault();

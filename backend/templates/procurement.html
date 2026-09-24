@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Сатып алулар — «PSA» ЖШС{% endblock %}
+{% block description %}«PSA» ЖШС тауарларды, жұмыстарды және қызметтерді сатып алу туралы ақпарат.{% endblock %}
+
+{% block content %}
+
+  <!-- ===== ЗАКУПКИ ===== -->
+  <section class="procurement" id="procurement">
+    <div class="container">
+      <p class="eyebrow" data-i18n="procurement.eyebrow">Закупки</p>
+      <h1 class="section-title" data-i18n="procurement.title">Закупки товаров, работ и услуг</h1>
+      <p class="page-lead" data-i18n="procurement.lead">Действующие и завершённые процедуры закупок ТОО «PSA».</p>
+
+      <div class="feed-list">
+        {% for entry in procurement_entries %}
+        <article class="feed-item">
+          <div class="feed-item-meta">
+            <span class="badge{% if entry.status == 'Завершён' %} is-closed{% endif %}">{{ entry.status }}</span>
+            {% if entry.deadline %}<span>До {{ entry.deadline|date:"d E Y" }} г.</span>{% endif %}
+          </div>
+          <h3 class="feed-item-title">{{ entry.title }}</h3>
+          {% if entry.description %}<p class="feed-item-text">{{ entry.description }}</p>{% endif %}
+          {% if entry.url %}<a class="feed-item-link" href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">Подробнее ↗</a>{% endif %}
+        </article>
+        {% empty %}
+        <p class="feed-empty">Пока нет объявленных закупок.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+{% endblock %}
