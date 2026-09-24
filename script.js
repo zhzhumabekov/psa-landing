@@ -120,6 +120,8 @@ const translations = {
     "project.dunga.title": "Дунга",
     "project.dunga.region": "Маңғыстау облысы",
     "project.dunga.teaser": "Өнімді бөлу туралы қолданыстағы келісімі бар мұнай кен орны.",
+    "partners.eyebrow": "Серіктестер",
+    "partners.title": "Жобалардың серіктестері мен қатысушылары",
     "contacts.eyebrow": "Бізбен байланысыңыз",
     "contacts.title": "Байланыс",
     "contacts.lead": "Форманы толтырыңыз — сұрауыңызға жауап береміз.",
