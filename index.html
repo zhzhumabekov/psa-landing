@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ТОО «PSA» — Полномочный орган Правительства Республики Казахстан</title>
+<meta name="description" content="ТОО «PSA» — Полномочный орган Правительства Республики Казахстан в соглашениях о разделе продукции: Кашаган, Карачаганак, Дунга.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=PT+Sans:wght@400;700&family=PT+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+
+<!-- ===== ШАПКА ===== -->
+<header class="site-header">
+  <div class="container header-inner">
+
+    <a href="#hero" class="logo" aria-label="PSA — на главную">
+      <span class="logo-mark">PSA</span>
+      <span class="logo-caption">Полномочный орган<br>Правительства РК</span>
+    </a>
+
+    <nav class="main-nav" id="main-nav" aria-label="Основное меню">
+      <ul>
+        <li><a href="#about" data-i18n="nav.about">О компании</a></li>
+        <li class="has-dropdown">
+          <details>
+            <summary data-i18n="nav.projects">Проекты</summary>
+            <ul class="dropdown">
+              <li><a href="#kashagan" data-i18n="project.kashagan.title">Кашаган</a></li>
+              <li><a href="#karachaganak" data-i18n="project.karachaganak.title">Карачаганак</a></li>
+              <li><a href="#dunga" data-i18n="project.dunga.title">Дунга</a></li>
+            </ul>
+          </details>
+        </li>
+        <li><a href="#local-content" data-i18n="nav.local_content">Местное содержание</a></li>
+        <li><a href="#procurement" data-i18n="nav.procurement">Закупки</a></li>
+        <li><a href="#documents" data-i18n="nav.documents">Документы</a></li>
+        <li><a href="#news" data-i18n="nav.news">Новости</a></li>
+        <li><a href="#contacts" data-i18n="nav.contacts">Контакты</a></li>
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <div class="lang-switch" role="group" aria-label="Выбор языка">
+        <button type="button" class="lang-btn" data-lang="kz" aria-pressed="false">ҚАЗ</button>
+        <button type="button" class="lang-btn is-active" data-lang="ru" aria-pressed="true">РУС</button>
+        <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">ENG</button>
+      </div>
+
+      <a href="#login" class="btn btn-ghost btn-login">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <circle cx="12" cy="8" r="3.5"/>
+          <path d="M4.5 19.5c1.4-3.2 4.2-5 7.5-5s6.1 1.8 7.5 5"/>
+        </svg>
+        <span data-i18n="header.login">Войти</span>
+      </a>
+
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-controls="main-nav" aria-expanded="false" aria-label="Открыть меню">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ===== HERO ===== -->
+  <section class="hero" id="hero">
+    <div class="hero-decor" aria-hidden="true">
+      <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="200" cy="200" r="40" class="ring"/>
+        <circle cx="200" cy="200" r="110" class="ring"/>
+        <circle cx="200" cy="200" r="180" class="ring"/>
+      </svg>
+    </div>
+
+    <div class="container">
+      <div class="hero-inner">
+        <p class="eyebrow eyebrow--on-dark" data-i18n="hero.eyebrow">Полномочный орган Правительства Республики Казахстан</p>
+        <h1 class="hero-title" data-i18n="hero.title">Представляем интересы государства в&nbsp;соглашениях о&nbsp;разделе продукции</h1>
+        <p class="hero-subtitle" data-i18n="hero.subtitle">ТОО «PSA» — Полномочный орган Правительства Республики Казахстан в проектах Кашаган, Карачаганак и Дунга.</p>
+
+        <div class="hero-actions">
+          <a href="#projects" class="btn btn-primary" data-i18n="hero.cta_projects">Наши проекты</a>
+          <a href="#about" class="btn btn-secondary-dark" data-i18n="hero.cta_about">О компании</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== О КОМПАНИИ ===== -->
+  <section class="about" id="about">
+    <div class="container">
+      <p class="eyebrow" data-i18n="about.eyebrow">О компании</p>
+      <h2 class="section-title" data-i18n="about.title">Государственный партнёр в соглашениях о разделе продукции</h2>
+
+      <div class="about-body">
+        <p data-i18n="about.p1">ТОО «PSA» учреждено в 2010 году и наделено статусом Полномочного органа Правительства Республики Казахстан в соглашениях о разделе продукции — в соответствии с Постановлением Правительства Республики Казахстан №355. Компания на 100% принадлежит государству.</p>
+        <p data-i18n="about.p2">От имени Правительства Республики Казахстан PSA представляет интересы государства в трёх проектах СРП — Северо-Каспийском (Кашаган), Карачаганакском и Дунга, — обеспечивает контроль исполнения соглашений, защиту национальных интересов и развитие казахстанского содержания в проектах.</p>
+      </div>
+
+      <dl class="stats-grid">
+        <div class="stat">
+          <dt class="stat-value">2010</dt>
+          <dd class="stat-label" data-i18n="about.stat_year">Год учреждения</dd>
+        </div>
+        <div class="stat">
+          <dt class="stat-value">№355</dt>
+          <dd class="stat-label" data-i18n="about.stat_decree">Постановление Правительства РК</dd>
+        </div>
+        <div class="stat">
+          <dt class="stat-value">100%</dt>
+          <dd class="stat-label" data-i18n="about.stat_state">Участие государства</dd>
+        </div>
+        <div class="stat">
+          <dt class="stat-value">3</dt>
+          <dd class="stat-label" data-i18n="about.stat_projects">Проекта СРП</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ===== ПРОЕКТЫ ===== -->
+  <section class="projects" id="projects">
+    <div class="container">
+      <p class="eyebrow" data-i18n="projects.eyebrow">Наши проекты</p>
+      <h2 class="section-title" data-i18n="projects.title">Три соглашения о разделе продукции</h2>
+      <p class="projects-lead" data-i18n="projects.lead">Нажмите на карточку проекта, чтобы открыть подробное описание.</p>
+
+      <div class="project-cards">
+        <button type="button" class="project-card" id="kashagan" data-project="kashagan" aria-haspopup="dialog">
+          <span class="project-card-eyebrow" data-i18n="project.kashagan.region">Северный Каспий</span>
+          <h3 class="project-card-title" data-i18n="project.kashagan.title">Кашаган</h3>
+          <p class="project-card-teaser" data-i18n="project.kashagan.teaser">Одно из крупнейших морских месторождений региона на шельфе Каспийского моря.</p>
+          <span class="project-card-cta" data-i18n="projects.cta_more">Подробнее →</span>
+        </button>
+
+        <button type="button" class="project-card" id="karachaganak" data-project="karachaganak" aria-haspopup="dialog">
+          <span class="project-card-eyebrow" data-i18n="project.karachaganak.region">Западный Казахстан</span>
+          <h3 class="project-card-title" data-i18n="project.karachaganak.title">Карачаганак</h3>
+          <p class="project-card-teaser" data-i18n="project.karachaganak.teaser">Гигантское нефтегазоконденсатное месторождение в Западно-Казахстанской области.</p>
+          <span class="project-card-cta" data-i18n="projects.cta_more">Подробнее →</span>
+        </button>
+
+        <button type="button" class="project-card" id="dunga" data-project="dunga" aria-haspopup="dialog">
+          <span class="project-card-eyebrow" data-i18n="project.dunga.region">Мангистауская область</span>
+          <h3 class="project-card-title" data-i18n="project.dunga.title">Дунга</h3>
+          <p class="project-card-teaser" data-i18n="project.dunga.teaser">Нефтяное месторождение с действующим соглашением о разделе продукции.</p>
+          <span class="project-card-cta" data-i18n="projects.cta_more">Подробнее →</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== КОНТАКТЫ ===== -->
+  <section class="contacts" id="contacts">
+    <div class="container">
+      <p class="eyebrow" data-i18n="contacts.eyebrow">Связаться с нами</p>
+      <h2 class="section-title" data-i18n="contacts.title">Контакты</h2>
+      <p class="contacts-lead" data-i18n="contacts.lead">Заполните форму, и мы ответим на ваше обращение.</p>
+
+      <form class="contact-form" id="contact-form" novalidate>
+        <div class="form-field">
+          <label for="contact-name" data-i18n="contacts.form.name_label">Имя</label>
+          <input type="text" id="contact-name" name="name" autocomplete="name" data-i18n-placeholder="contacts.form.name_placeholder" placeholder="Как к вам обращаться">
+          <span class="form-error" id="contact-name-error"></span>
+        </div>
+
+        <div class="form-field">
+          <label for="contact-email" data-i18n="contacts.form.email_label">E-mail</label>
+          <input type="email" id="contact-email" name="email" autocomplete="email" data-i18n-placeholder="contacts.form.email_placeholder" placeholder="name@example.com">
+          <span class="form-error" id="contact-email-error"></span>
+        </div>
+
+        <div class="form-field">
+          <label for="contact-message" data-i18n="contacts.form.message_label">Сообщение</label>
+          <textarea id="contact-message" name="message" rows="4" data-i18n-placeholder="contacts.form.message_placeholder" placeholder="Опишите ваш вопрос"></textarea>
+          <span class="form-error" id="contact-message-error"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary" data-i18n="contacts.form.submit">Отправить</button>
+
+        <p class="form-status" id="contact-form-status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== МОДАЛЬНОЕ ОКНО ПРОЕКТА ===== -->
+<dialog class="project-modal" id="project-modal">
+  <button type="button" class="project-modal-close" id="project-modal-close" data-i18n-aria-label="modal.close" aria-label="Закрыть">&times;</button>
+  <p class="project-modal-eyebrow" id="project-modal-eyebrow"></p>
+  <h2 class="project-modal-title" id="project-modal-title"></h2>
+  <div class="project-modal-body" id="project-modal-body"></div>
+</dialog>
+
+<script src="script.js" defer></script>
+
+</body>
+</html>
