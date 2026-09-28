@@ -109,6 +109,16 @@ bash install.sh                                        # Ubuntu
 
 Ручная установка по шагам (Git Bash) — в [backend/README.md](backend/README.md#установка).
 
+## Оформление админки
+
+Админка Wagtail оформлена как сайт: тёмно-синее боковое меню, синие кнопки и ссылки, золотые акценты, шрифты PT Sans / PT Serif, логотип PSA и свой значок вкладки. Светлая и тёмная темы Wagtail (выбираются в профиле пользователя) работают обе.
+
+- цвета и шрифты — `backend/static/psa-admin.css` (переопределяет CSS-переменные Wagtail, подключается хуком в `content/wagtail_hooks.py`);
+- логотип, заголовок вкладки «… - PSA», значок — `backend/templates/wagtailadmin/base.html`, `psa_logo.html`, `static/psa-favicon.svg`;
+- страница входа («Вход в админку ТОО «PSA»») — `backend/templates/wagtailadmin/login.html`.
+
+Кнопки сделаны синими, а не золотыми намеренно: белый текст на золотом плохо читается (контраст ~2.8:1 при норме 4.5:1).
+
 ## Страницы ошибок и режим обслуживания
 
 Свои страницы на трёх языках — `backend/templates/400.html`, `403.html`, `404.html`, `500.html`, `503.html`:

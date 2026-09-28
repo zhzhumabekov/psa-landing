@@ -1,0 +1,89 @@
+/* Оформление админки Wagtail в фирменном стиле сайта (static/styles.css).
+   Подключается хуком insert_global_admin_css (content/wagtail_hooks.py) после
+   core.css Wagtail — переопределяем его CSS-переменные, разметку не трогаем.
+
+   Цвета сайта:  ink-900 #0B2440 — боковое меню (как подвал сайта),
+                 steel-700 #1C4E80 — кнопки и ссылки (как ссылки на сайте),
+                 gold-500 #B8924B — только акценты (логотип, активный пункт меню):
+                 белый текст на золоте нечитаем (контраст ~2.8:1), поэтому
+                 кнопки не золотые. */
+
+:root {
+  /* Wagtail строит оттенки (-200, -50…) из hue / saturation / lightness. */
+  --w-color-primary-hue: 211.7;          /* #0B2440 */
+  --w-color-primary-saturation: 70.7%;
+  --w-color-primary-lightness: 14.7%;
+  --w-color-secondary-hue: 210;          /* #1C4E80 */
+  --w-color-secondary-saturation: 64.1%;
+  --w-color-secondary-lightness: 30.6%;
+
+  --w-font-sans: "PT Sans", "Helvetica Neue", Arial, sans-serif;
+  --w-font-mono: "PT Mono", "SFMono-Regular", Consolas, monospace;
+
+  --psa-gold: #B8924B;
+  --psa-serif: "PT Serif", Georgia, "Times New Roman", serif;
+}
+
+/* Тёмная тема Wagtail: синие ссылки на тёмном фоне — светлее. */
+.w-theme-dark {
+  --w-color-text-link-default: #8FB6DD;
+  --w-color-text-link-hover: #B9D2EB;
+}
+@media (prefers-color-scheme: dark) {
+  .w-theme-system {
+    --w-color-text-link-default: #8FB6DD;
+    --w-color-text-link-hover: #B9D2EB;
+  }
+}
+
+/* Заголовки — засечками, как на сайте. */
+.w-h1,
+.w-header__title,
+.login h1 {
+  font-family: var(--psa-serif);
+  font-weight: 700;
+}
+
+/* ---------- Логотип PSA (templates/wagtailadmin/base.html, login.html) ---------- */
+.psa-admin-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.psa-admin-logo text {
+  font-family: var(--psa-serif);
+  font-weight: 700;
+}
+.sidebar-custom-branding .psa-admin-logo { max-width: 72px; margin-inline: auto; }
+
+/* Активный пункт бокового меню — золотая полоска слева, как в меню подразделов на сайте. */
+.sidebar-menu-item--active > a,
+.sidebar-menu-item--active > button {
+  box-shadow: inset 3px 0 0 var(--psa-gold);
+}
+
+/* ---------- Страница входа ---------- */
+.login {
+  background: #F5F6F8;
+}
+.login .content-wrapper {
+  border-top: 4px solid var(--psa-gold);
+}
+.login .login-logo .psa-admin-logo {
+  max-width: 160px;
+  margin-inline: auto;
+}
+
+/* Цвет надписи логотипа: в тёмном боковом меню — белый, на странице входа — тёмно-синий. */
+.sidebar-custom-branding { color: #FFFFFF; }
+.login-logo { color: #0B2440; }
+
+/* Тёмная тема (выбрана в профиле или системная) — фон входа и логотип светлые на тёмном. */
+.w-theme-dark .login,
+.w-theme-dark.login { background: var(--w-color-surface-page); }
+.w-theme-dark .login-logo { color: #FFFFFF; }
+@media (prefers-color-scheme: dark) {
+  .w-theme-system .login,
+  .w-theme-system.login { background: var(--w-color-surface-page); }
+  .w-theme-system .login-logo { color: #FFFFFF; }
+}

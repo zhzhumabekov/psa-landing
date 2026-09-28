@@ -1,4 +1,6 @@
+from django.templatetags.static import static
 from django.urls import path
+from django.utils.html import format_html
 from wagtail import hooks
 from wagtail.admin.action_menu import ActionMenuItem
 from wagtail.admin.ui.menus.pages import PageMenuItem
@@ -72,3 +74,15 @@ class ArchiveTransferActionMenuItem(ActionMenuItem):
 @hooks.register("register_page_action_menu_item")
 def register_archive_transfer_action():
     return ArchiveTransferActionMenuItem()
+
+
+# Оформление админки в стиле сайта: шрифты PT (как на сайте) и static/psa-admin.css.
+@hooks.register("insert_global_admin_css")
+def psa_admin_css():
+    return format_html(
+        '<link rel="preconnect" href="https://fonts.googleapis.com">'
+        '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+        '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=PT+Sans:wght@400;700&family=PT+Mono&display=swap">'
+        '<link rel="stylesheet" href="{}">',
+        static("psa-admin.css"),
+    )

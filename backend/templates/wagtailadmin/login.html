@@ -1,0 +1,7 @@
+{% extends "wagtailadmin/login.html" %}
+{% comment %}Страница входа в админку в стиле PSA (см. templates/wagtailadmin/base.html).{% endcomment %}
+{% load static %}
+{% block branding_login %}Вход в админку ТОО&nbsp;«PSA»{% endblock %}
+{% block branding_logo %}<div class="login-logo">{% include "wagtailadmin/psa_logo.html" %}</div>{% endblock %}
+{% block branding_title %}PSA{% endblock %}
+{% block branding_favicon %}<link rel="icon" href="{% static 'psa-favicon.svg' %}" type="image/svg+xml">{% endblock %}
