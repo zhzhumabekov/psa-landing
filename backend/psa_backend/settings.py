@@ -44,7 +44,7 @@ if not DEBUG and SECRET_KEY == _DEV_SECRET_KEY:
 ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS') + ['127.0.0.1', 'localhost']
 CSRF_TRUSTED_ORIGINS = env_list('DJANGO_CSRF_TRUSTED_ORIGINS')
 
-# Данные сайта — база, загруженные файлы, флаг обслуживания. На сервере — том /data.
+# Данные сайта — база и загруженные файлы. На сервере — том /data.
 DATA_DIR = Path(os.environ.get('DJANGO_DATA_DIR', BASE_DIR))
 
 
@@ -83,7 +83,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
-    # Режим обслуживания (страница 503): manage.py maintenance on/off.
+    # Режим обслуживания (страница 503): админка → Настройки → Сайт (или manage.py maintenance on/off).
     'content.maintenance.MaintenanceModeMiddleware',
 ]
 
@@ -203,31 +203,15 @@ WAGTAILDOCS_MAX_UPLOAD_SIZE = 20 * 1024 * 1024  # 20MB
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-# Письма (сброс пароля в админке, уведомления Wagtail): на сервере — SMTP, если в .env
-# задан EMAIL_HOST; иначе письма только выводятся в лог (docker compose logs web).
-if os.environ.get('EMAIL_HOST'):
-    MAILERS = {
-        'default': {
-            'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
-            'OPTIONS': {
-                'host': os.environ['EMAIL_HOST'],
-                'port': int(os.environ.get('EMAIL_PORT', 587)),
-                'username': os.environ.get('EMAIL_HOST_USER', ''),
-                'password': os.environ.get('EMAIL_HOST_PASSWORD', ''),
-                'use_tls': env_bool('EMAIL_USE_TLS', True),
-            },
-        },
-    }
-else:
-    MAILERS = {
-        'default': {
-            'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-        },
-    }
-DEFAULT_FROM_EMAIL = SERVER_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
-
-# Файл-флаг режима обслуживания (content/maintenance.py): есть файл — сайт отдаёт 503.
-MAINTENANCE_FLAG = DATA_DIR / 'maintenance.on'
+# Письма (форма «Контакты», сброс пароля в админке): SMTP-сервер задаётся в админке —
+# «Настройки» → «Почта (SMTP)» (content/mail.py). Не задан — письма пишутся в лог.
+MAILERS = {
+    'default': {
+        'BACKEND': 'content.mail.SiteEmailBackend',
+    },
+}
+# Отправитель, если в «Почта (SMTP)» адрес не указан.
+DEFAULT_FROM_EMAIL = SERVER_EMAIL = 'webmaster@localhost'
 
 
 # Сервер (DEBUG = False): сайт за обратным прокси Caddy, который принимает HTTPS.

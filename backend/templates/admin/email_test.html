@@ -1,0 +1,29 @@
+{% extends "wagtailadmin/base.html" %}
+{% comment %}Админка: «Настройки» → «Почта (SMTP)» → «Отправить тестовое письмо» (content/mail.py).{% endcomment %}
+{% load wagtailadmin_tags %}
+{% block titletag %}Тестовое письмо{% endblock %}
+{% block content %}
+    {% include "wagtailadmin/shared/header.html" with title="Тестовое письмо" icon="mail" %}
+
+    <div class="nice-padding">
+        {% if config.host %}
+            <p>Сервер: <b>{{ config.host }}:{{ config.port }}</b>, шифрование: {{ config.get_security_display }}, логин: {{ config.username|default:"—" }}.</p>
+        {% else %}
+            <p class="help-block help-warning">SMTP-сервер не указан — сначала заполните и сохраните настройки почты.</p>
+        {% endif %}
+
+        <form action="" method="POST">
+            {% csrf_token %}
+            <div class="w-field__wrapper">
+                <label class="w-field__label" for="id_to">Кому отправить</label>
+                <div class="w-field__input">
+                    <input type="email" name="to" id="id_to" value="{{ to }}" required>
+                </div>
+            </div>
+            <p>
+                <button type="submit" class="button">Отправить тестовое письмо</button>
+                <a href="{{ settings_url }}" class="button button-secondary">Назад к настройкам почты</a>
+            </p>
+        </form>
+    </div>
+{% endblock %}

@@ -1,11 +1,14 @@
+import re
+
+from django import forms
 from django.core.paginator import Paginator
 from django.db import models
-from wagtail.admin.panels import FieldPanel, ObjectList, TabbedInterface
+from wagtail.admin.panels import FieldPanel, HelpPanel, MultiFieldPanel, ObjectList, TabbedInterface
 from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.fields import StreamField
 from wagtail.models import Page
 
-from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
+from wagtail.contrib.settings.models import BaseGenericSetting, BaseSiteSetting, register_setting
 
 from .blocks import ContentBlocks, PhoneBlock
 
@@ -425,3 +428,112 @@ class FooterSettings(TranslatedFieldsMixin, BaseSiteSetting):
     class Meta:
         verbose_name = "Подвал сайта"
 
+
+# ---------- Настройки сайта в админке («Настройки» → …) ----------
+
+@register_setting(icon="mail")
+class EmailSettings(BaseGenericSetting):
+    """Почтовый сервер для писем сайта: обращения из формы «Контакты», сброс пароля
+    в админке. Письма отправляет content.mail.SiteEmailBackend — читает эти поля
+    в момент отправки, перезапуск сервера после изменения не нужен."""
+
+    SECURITY_CHOICES = [
+        ("tls", "STARTTLS — обычно порт 587"),
+        ("ssl", "SSL/TLS — обычно порт 465"),
+        ("none", "Без шифрования — обычно порт 25"),
+    ]
+
+    host = models.CharField(
+        "SMTP-сервер", max_length=255, blank=True,
+        help_text="Например, smtp.mail.ru, smtp.gmail.com или сервер корпоративной почты. "
+                  "Пусто — письма не отправляются, а только пишутся в лог сервера.",
+    )
+    port = models.PositiveIntegerField("Порт", default=587)
+    security = models.CharField("Шифрование", max_length=10, choices=SECURITY_CHOICES, default="tls")
+    username = models.CharField("Логин", max_length=255, blank=True, help_text="Обычно — полный адрес почтового ящика.")
+    password = models.CharField(
+        "Пароль", max_length=255, blank=True,
+        help_text="Для Gmail, Mail.ru, Яндекса — «пароль приложения» из настроек безопасности ящика, а не обычный пароль.",
+    )
+    from_email = models.EmailField(
+        "Адрес отправителя", blank=True,
+        help_text="От чьего имени приходят письма. Обычно совпадает с логином — многие серверы не разрешают другой.",
+    )
+    from_name = models.CharField("Имя отправителя", max_length=100, blank=True, default="ТОО «PSA»")
+
+    panels = [
+        MultiFieldPanel([
+            FieldPanel("host"),
+            FieldPanel("port"),
+            FieldPanel("security"),
+            FieldPanel("username"),
+            FieldPanel("password", widget=forms.PasswordInput(render_value=True)),
+        ], heading="Сервер"),
+        MultiFieldPanel([FieldPanel("from_email"), FieldPanel("from_name")], heading="Отправитель"),
+        HelpPanel(template="admin/panels/email_test_help.html", heading="Проверка"),
+    ]
+
+    class Meta:
+        verbose_name = "Почта (SMTP)"
+
+
+@register_setting(icon="form")
+class ContactFormSettings(BaseGenericSetting):
+    """Форма «Контакты» на главной: куда отправлять обращения (они в любом случае
+    сохраняются в админке, раздел «Обращения»)."""
+
+    recipients = models.TextField(
+        "Кому отправлять обращения", blank=True,
+        help_text="Адреса e-mail — каждый с новой строки или через запятую. "
+                  "Пусто — письма не отправляются, обращения только сохраняются в разделе «Обращения».",
+    )
+    subject = models.CharField("Тема письма", max_length=200, default="Обращение с сайта PSA")
+
+    panels = [FieldPanel("recipients"), FieldPanel("subject")]
+
+    class Meta:
+        verbose_name = "Форма «Контакты»"
+
+    @property
+    def recipient_list(self):
+        return [a.strip() for a in re.split(r"[,;\s]+", self.recipients) if a.strip()]
+
+
+@register_setting(icon="cogs")
+class SiteConfig(BaseGenericSetting):
+    """Общие настройки работы сайта."""
+
+    maintenance_mode = models.BooleanField(
+        "Режим обслуживания", default=False,
+        help_text="Посетители видят страницу «Сайт на техническом обслуживании» (503). "
+                  "Админка работает, вошедшие в неё сотрудники видят сайт как обычно — можно проверить изменения до открытия.",
+    )
+
+    panels = [FieldPanel("maintenance_mode")]
+
+    class Meta:
+        verbose_name = "Сайт"
+
+
+# ---------- Обращения из формы «Контакты» ----------
+
+class ContactMessage(models.Model):
+    """Обращение из формы на главной (content/contact.py). В админке — «Обращения»."""
+
+    created_at = models.DateTimeField("Получено", auto_now_add=True, db_index=True)
+    name = models.CharField("Имя", max_length=200)
+    email = models.EmailField("E-mail")
+    message = models.TextField("Сообщение")
+    language = models.CharField("Язык сайта", max_length=2, blank=True, choices=LANGUAGES)
+    ip_address = models.GenericIPAddressField("IP-адрес", null=True, blank=True)
+    is_read = models.BooleanField("Прочитано", default=False)
+    email_sent = models.BooleanField("Письмо отправлено", default=False)
+    email_error = models.TextField("Ошибка отправки письма", blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Обращение"
+        verbose_name_plural = "Обращения"
+
+    def __str__(self):
+        return f"{self.name} <{self.email}>"

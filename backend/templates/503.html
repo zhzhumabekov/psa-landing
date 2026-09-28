@@ -1,5 +1,5 @@
 {% extends "errors/standalone.html" %}
-{# Режим обслуживания: manage.py maintenance on (content/maintenance.py). #}
+{# Режим обслуживания: админка → Настройки → Сайт, или manage.py maintenance on (content/maintenance.py). #}
 {% block title %}503 — «PSA» ЖШС{% endblock %}
 {% block content %}
   {% include "errors/site_error.html" with code="503" eyebrow="Технические работы" heading="Сайт на техническом обслуживании" text="Мы проводим плановые работы. Сайт скоро снова будет доступен." reload=True %}

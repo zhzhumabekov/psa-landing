@@ -3,15 +3,24 @@ from django.urls import path
 from django.utils.html import format_html
 from wagtail import hooks
 from wagtail.admin.action_menu import ActionMenuItem
+from wagtail.admin.panels import FieldPanel
 from wagtail.admin.ui.menus.pages import PageMenuItem
+from wagtail.admin.ui.tables import BooleanColumn, Column, DateColumn
+from wagtail.admin.views import generic
+from wagtail.admin.viewsets.model import ModelViewSet
+from wagtail.permission_policies import ModelPermissionPolicy
+from wagtail.permissions import register_permission_policy
 
 from .archive_transfer import archive_transfer, get_transfer, transfer_url
+from .mail import email_test
+from .models import ContactMessage
 
 
 @hooks.register("register_admin_urls")
 def register_archive_transfer_url():
     return [
         path("archive-transfer/<int:page_id>/", archive_transfer, name="archive_transfer"),
+        path("email-test/", email_test, name="email_test"),
     ]
 
 
@@ -86,3 +95,66 @@ def psa_admin_css():
         '<link rel="stylesheet" href="{}">',
         static("psa-admin.css"),
     )
+
+
+# ---------- «Обращения» — записи формы «Контакты» (content/contact.py) ----------
+
+class ContactMessagePermissionPolicy(ModelPermissionPolicy):
+    """Обращения приходят только с сайта — вручную их не создают (нет кнопки «Добавить»)."""
+
+    def user_has_permission(self, user, action):
+        return action != "add" and super().user_has_permission(user, action)
+
+    def users_with_any_permission(self, actions):
+        return super().users_with_any_permission([a for a in actions if a != "add"])
+
+
+register_permission_policy(ContactMessage, ContactMessagePermissionPolicy(ContactMessage))
+
+
+class ContactMessageEditView(generic.EditView):
+    """Открыли обращение — оно считается прочитанным (галочку можно снять)."""
+
+    def get_object(self, queryset=None):
+        entry = super().get_object(queryset)
+        if self.request.method == "GET" and not entry.is_read:
+            ContactMessage.objects.filter(pk=entry.pk).update(is_read=True)
+            entry.is_read = True
+        return entry
+
+
+class ContactMessageViewSet(ModelViewSet):
+    model = ContactMessage
+    name = "contact_messages"
+    url_prefix = "contact-messages"
+    icon = "mail"
+    menu_label = "Обращения"
+    menu_order = 150
+    add_to_admin_menu = True
+    copy_view_enabled = False
+    edit_view_class = ContactMessageEditView
+    list_display = [
+        "name",
+        Column("email", label="E-mail"),
+        DateColumn("created_at", label="Получено"),
+        BooleanColumn("is_read", label="Прочитано"),
+        BooleanColumn("email_sent", label="Письмо отправлено"),
+    ]
+    list_filter = ["is_read", "email_sent", "created_at"]
+    search_fields = ["name", "email", "message"]
+    panels = [
+        FieldPanel("name", read_only=True),
+        FieldPanel("email", read_only=True),
+        FieldPanel("message", read_only=True),
+        FieldPanel("created_at", read_only=True),
+        FieldPanel("language", read_only=True),
+        FieldPanel("ip_address", read_only=True),
+        FieldPanel("email_sent", read_only=True),
+        FieldPanel("email_error", read_only=True),
+        FieldPanel("is_read"),
+    ]
+
+
+@hooks.register("register_admin_viewset")
+def register_contact_messages():
+    return ContactMessageViewSet()

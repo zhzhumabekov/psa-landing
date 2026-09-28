@@ -101,6 +101,9 @@ const translations = {
     "errors.email_invalid": "Проверьте формат e-mail.",
     "errors.message_required": "Пожалуйста, добавьте сообщение.",
     "form.success": "Спасибо! Сообщение отправлено — мы свяжемся с вами в ближайшее время.",
+    "form.sending": "Отправляем…",
+    "form.error": "Не удалось отправить сообщение. Попробуйте ещё раз немного позже.",
+    "form.too_many": "Слишком много сообщений подряд. Попробуйте позже.",
     "feed.read_more": "Читать полностью →",
     "local_content.empty": "Пока нет опубликованных материалов.",
     "procurement.empty": "Пока нет объявленных закупок.",
@@ -182,6 +185,9 @@ const translations = {
     "errors.email_invalid": "E-mail форматын тексеріңіз.",
     "errors.message_required": "Хабарлама мәтінін қосыңыз.",
     "form.success": "Рақмет! Хабарлама жіберілді — жақын арада хабарласамыз.",
+    "form.sending": "Жіберілуде…",
+    "form.error": "Хабарламаны жіберу мүмкін болмады. Сәл кейінірек қайталап көріңіз.",
+    "form.too_many": "Хабарламалар тым көп. Кейінірек қайталап көріңіз.",
     "local_content.eyebrow": "Жергілікті қамту",
     "local_content.title": "Қазақстандық қамтуды дамыту",
     "local_content.lead": "ӨБК жобаларындағы қазақстандық қамту бойынша міндеттемелердің орындалуы туралы материалдар.",
@@ -273,6 +279,9 @@ const translations = {
     "errors.email_invalid": "Please check the e-mail format.",
     "errors.message_required": "Please add a message.",
     "form.success": "Thank you! Your message has been sent — we will get back to you soon.",
+    "form.sending": "Sending…",
+    "form.error": "The message could not be sent. Please try again a little later.",
+    "form.too_many": "Too many messages in a row. Please try again later.",
     "local_content.eyebrow": "Local content",
     "local_content.title": "Developing Kazakhstani content",
     "local_content.lead": "Materials on meeting Kazakhstani content commitments in PSA projects.",
@@ -645,9 +654,33 @@ if (contactForm) {
       return;
     }
 
-    contactForm.reset();
-    contactFormStatus.classList.add("is-success");
-    contactFormStatus.textContent = translate("form.success");
+    // Отправка на сервер (content/contact.py): обращение сохраняется в админке
+    // («Обращения») и уходит письмом на адреса из «Настройки» → «Форма «Контакты»».
+    const submitButton = contactForm.querySelector('button[type="submit"]');
+    const data = new FormData(contactForm);
+    data.append("language", currentLang);
+    submitButton.disabled = true;
+    contactFormStatus.textContent = translate("form.sending");
+
+    fetch(contactForm.action, { method: "POST", body: data, headers: { "X-Requested-With": "fetch" } })
+      .then((response) => response.json().catch(() => ({})).then((result) => ({ response, result })))
+      .then(({ response, result }) => {
+        if (response.ok && result.ok) {
+          contactForm.reset();
+          contactFormStatus.classList.add("is-success");
+          contactFormStatus.textContent = translate("form.success");
+          return;
+        }
+        contactFormStatus.classList.add("is-error");
+        contactFormStatus.textContent = translate(response.status === 429 ? "form.too_many" : "form.error");
+      })
+      .catch(() => {
+        contactFormStatus.classList.add("is-error");
+        contactFormStatus.textContent = translate("form.error");
+      })
+      .finally(() => {
+        submitButton.disabled = false;
+      });
   });
 
   ["contact-name", "contact-email", "contact-message"].forEach((id) => {

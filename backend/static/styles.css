@@ -955,6 +955,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .form-status.is-success { color: var(--state-success); }
 .form-status.is-error { color: #B3261E; }
+/* Поле-ловушка для спам-ботов в форме «Контакты» — убрано с экрана, но не display:none. */
+.form-trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.contact-form button[disabled] { opacity: 0.6; cursor: progress; }
 
 /* ---------- Закупки: подразделы, вкладки, файлы, пагинация ---------- */
 .section-cards {

@@ -165,7 +165,13 @@
       <h2 class="section-title" data-i18n="contacts.title">Контакты</h2>
       <p class="contacts-lead" data-i18n="contacts.lead">Заполните форму, и мы ответим на ваше обращение.</p>
 
-      <form class="contact-form" id="contact-form" novalidate>
+      <form class="contact-form" id="contact-form" action="{% url 'contact_submit' %}" method="post" novalidate>
+        {% csrf_token %}
+        {# Ловушка для спам-ботов: людям не видна, боты заполняют (content/contact.py). #}
+        <div class="form-trap" aria-hidden="true">
+          <label for="contact-website">Сайт</label>
+          <input type="text" id="contact-website" name="website" tabindex="-1" autocomplete="off">
+        </div>
         <div class="form-field">
           <label for="contact-name" data-i18n="contacts.form.name_label">Имя</label>
           <input type="text" id="contact-name" name="name" autocomplete="name" data-i18n-placeholder="contacts.form.name_placeholder" placeholder="Как к вам обращаться">

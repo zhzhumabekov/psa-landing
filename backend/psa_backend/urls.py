@@ -2,11 +2,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
 from wagtail import urls as wagtail_urls
+
+from content.contact import contact_submit
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
 
 urlpatterns = [
     path('admin/', include(wagtailadmin_urls)),
+    # Форма «Контакты» на главной (content/contact.py).
+    path('contact/', contact_submit, name='contact_submit'),
     # Раздача файлов из библиотеки документов Wagtail. Не 'documents/' —
     # этот адрес занят страницей раздела «Документы».
     path('files/', include(wagtaildocs_urls)),
