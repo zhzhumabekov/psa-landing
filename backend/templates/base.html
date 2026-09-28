@@ -76,6 +76,52 @@
 {% block content %}{% endblock %}
 </main>
 
+<!-- ===== ПОДВАЛ (контакты — «Настройки» → «Подвал сайта» в админке) ===== -->
+{% with footer=settings.content.FooterSettings %}
+<footer class="site-footer">
+  <div class="container footer-grid">
+
+    <div class="footer-brand">
+      <a href="{% slugurl 'home' %}#hero" class="footer-logo" aria-label="PSA — на главную">PSA</a>
+      <p class="footer-org">{% ml footer "org_name" %}</p>
+      {% if footer.tagline %}<p class="footer-tagline">{% ml footer "tagline" %}</p>{% endif %}
+    </div>
+
+    <nav class="footer-nav" aria-labelledby="footer-nav-title">
+      <h2 class="footer-title" id="footer-nav-title" data-i18n="footer.sitemap">Карта сайта</h2>
+      <ul>
+        <li><a href="{% slugurl 'home' %}#about" data-i18n="nav.about">О компании</a></li>
+        <li><a href="{% slugurl 'projects' %}" data-i18n="nav.projects">Проекты</a></li>
+        <li><a href="{% slugurl 'local-content' %}" data-i18n="nav.local_content">Местное содержание</a></li>
+        <li><a href="{% slugurl 'procurement' %}" data-i18n="nav.procurement">Закупки</a></li>
+        <li><a href="{% slugurl 'documents' %}" data-i18n="nav.documents">Документы</a></li>
+        <li><a href="{% slugurl 'news' %}" data-i18n="nav.news">Новости</a></li>
+        <li><a href="{% slugurl 'home' %}#contacts" data-i18n="nav.contacts">Контакты</a></li>
+      </ul>
+    </nav>
+
+    <div class="footer-contacts">
+      <h2 class="footer-title" data-i18n="footer.contacts">Контакты</h2>
+      {% if footer.address %}<address class="footer-address">{% ml footer "address" lines=True %}</address>{% endif %}
+      {% if footer.phones %}
+      <ul class="footer-phones">
+        {% for block in footer.phones %}
+        <li><a href="tel:{{ block.value.number|cut:' ' }}">{{ block.value.number }}</a>{% if block.value.note %} <span class="footer-note">({% ml block.value "note" %})</span>{% endif %}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% if footer.email %}<p class="footer-email"><a href="mailto:{{ footer.email }}">{{ footer.email }}</a></p>{% endif %}
+    </div>
+
+  </div>
+
+  <div class="container footer-bottom">
+    <p>© {% now "Y" %} {% ml footer "org_name" %}. <span data-i18n="footer.rights">Все права защищены.</span></p>
+    {% if footer.mail_url %}<a href="{{ footer.mail_url }}" target="_blank" rel="noopener noreferrer" data-i18n="footer.mail">Корпоративная почта</a>{% endif %}
+  </div>
+</footer>
+{% endwith %}
+
 <!-- ===== МОДАЛЬНОЕ ОКНО ПРОЕКТА ===== -->
 <dialog class="project-modal" id="project-modal">
   <button type="button" class="project-modal-close" id="project-modal-close" data-i18n-aria-label="modal.close" aria-label="Закрыть">&times;</button>

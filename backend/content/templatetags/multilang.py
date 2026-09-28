@@ -10,6 +10,7 @@
 не попадают — тогда показывается русский.
 """
 from django import template
+from django.template.defaultfilters import linebreaksbr
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.text import Truncator
@@ -54,10 +55,24 @@ def _group(tag, values):
     )
 
 
+def _translated(obj, field, lang):
+    """Страница/настройки (get_translated) или блок StreamField (dict-подобный
+    StructValue с ключами <поле>, <поле>_kz, <поле>_en)."""
+    if hasattr(obj, "get_translated"):
+        return obj.get_translated(field, lang)
+    key = field if lang == BASE_LANG else f"{field}_{lang}"
+    return obj.get(key, "") if hasattr(obj, "get") else getattr(obj, key, "")
+
+
 @register.simple_tag
-def ml(page, field):
-    """Строковое поле (заголовок, категория…) — inline."""
-    return _group("span", [(lang, page.get_translated(field, lang)) for lang in LANG_CODES])
+def ml(obj, field, lines=False):
+    """Строковое поле (заголовок, категория…) — inline. lines=True — переносы
+    строк в тексте (адрес) выводятся как <br>."""
+    values = []
+    for lang in LANG_CODES:
+        value = _translated(obj, field, lang) or ""
+        values.append((lang, linebreaksbr(value, autoescape=True) if lines and value else value))
+    return _group("span", values)
 
 
 @register.simple_tag(takes_context=True)

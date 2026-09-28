@@ -73,3 +73,16 @@ def text_preview(stream_value):
     for table in soup.find_all("table"):
         table.decompose()
     return mark_safe(str(soup))
+
+
+# Телефон в подвале сайта: номер (ссылка tel:) + пояснение на трёх языках.
+class PhoneBlock(blocks.StructBlock):
+    number = blocks.CharBlock(label="Номер", help_text="Например: +7 7172 79 89 20")
+    note = blocks.CharBlock(label="Пояснение", required=False, help_text="Например: Канцелярия")
+    note_kz = blocks.CharBlock(label="Пояснение (қазақша)", required=False)
+    note_en = blocks.CharBlock(label="Пояснение (English)", required=False)
+
+    class Meta:
+        icon = "mobile-alt"
+        label = "Телефон"
+

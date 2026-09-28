@@ -112,6 +112,10 @@ const translations = {
     "pagination.prev": "← Назад",
     "pagination.next": "Вперёд →",
     "feed.empty": "Пока нет записей.",
+    "footer.sitemap": "Карта сайта",
+    "footer.contacts": "Контакты",
+    "footer.rights": "Все права защищены.",
+    "footer.mail": "Корпоративная почта",
   },
   kz: {
     "nav.about": "Компания туралы",
@@ -194,6 +198,10 @@ const translations = {
     "pagination.prev": "← Артқа",
     "pagination.next": "Алға →",
     "feed.empty": "Әзірге жазбалар жоқ.",
+    "footer.sitemap": "Сайт картасы",
+    "footer.contacts": "Байланыс деректері",
+    "footer.rights": "Барлық құқықтар қорғалған.",
+    "footer.mail": "Корпоративтік пошта",
   },
   en: {
     "nav.about": "About",
@@ -274,6 +282,10 @@ const translations = {
     "pagination.prev": "← Previous",
     "pagination.next": "Next →",
     "feed.empty": "No entries yet.",
+    "footer.sitemap": "Site map",
+    "footer.contacts": "Contacts",
+    "footer.rights": "All rights reserved.",
+    "footer.mail": "Corporate mail",
   },
 };
 

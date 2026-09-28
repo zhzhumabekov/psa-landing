@@ -5,7 +5,9 @@ from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.fields import StreamField
 from wagtail.models import Page
 
-from .blocks import ContentBlocks
+from wagtail.contrib.settings.models import BaseSiteSetting, register_setting
+
+from .blocks import ContentBlocks, PhoneBlock
 
 # Языки контента. Русский — основной (штатные поля Wagtail: title и т.д.),
 # для kz/en у переводимых полей есть копии с суффиксом: title_kz, body_en...
@@ -15,22 +17,26 @@ LANGUAGES = [("ru", "Русский"), ("kz", "Қазақша"), ("en", "English
 TRANSLATION_LANGS = [code for code, _ in LANGUAGES if code != BASE_LANG]
 
 
-class TranslatedPage(Page):
+class TranslatedFieldsMixin:
+    """Значение поля на языке: <поле> — русский, <поле>_kz / <поле>_en — переводы."""
+
+    translated_fields = ()
+
+    def get_translated(self, field, lang):
+        if lang == BASE_LANG:
+            return getattr(self, field)
+        return getattr(self, f"{field}_{lang}")
+
+
+class TranslatedPage(TranslatedFieldsMixin, Page):
     """Страница с переводами: в админке вкладки «Русский / Қазақша / English».
 
     Наследник задаёт translated_fields — имена полей, у которых есть копии
     <поле>_kz и <поле>_en (сами поля объявляются в модели явно).
     """
 
-    translated_fields = ()
-
     class Meta:
         abstract = True
-
-    def get_translated(self, field, lang):
-        if lang == BASE_LANG:
-            return getattr(self, field)
-        return getattr(self, f"{field}_{lang}")
 
     @classmethod
     def build_edit_handler(cls):
@@ -361,3 +367,41 @@ class NewsIndexPage(SectionIndexPage):
 
 for _model in (ProjectPage, LocalContentPage, ProcurementSectionPage, ProcurementPage, DocumentPage, NewsPage):
     _model.edit_handler = _model.build_edit_handler()
+
+
+# Подвал сайта (templates/base.html) — «Настройки» → «Подвал сайта» в админке.
+# Ссылки на разделы в подвале — те же, что в меню шапки, из шаблона.
+@register_setting(icon="list-ul")
+class FooterSettings(TranslatedFieldsMixin, BaseSiteSetting):
+    org_name = models.CharField("Название организации", max_length=100, default="ТОО «PSA»")
+    tagline = models.CharField("Подпись под названием", max_length=255, blank=True)
+    address = models.TextField("Адрес", blank=True, help_text="Каждая строка — с новой строки.")
+    phones = StreamField([("phone", PhoneBlock())], verbose_name="Телефоны", blank=True)
+    email = models.EmailField("E-mail", blank=True)
+    mail_url = models.URLField("Ссылка «Почта» (корпоративная почта)", blank=True)
+
+    org_name_kz = models.CharField("Название организации (қазақша)", max_length=100, blank=True)
+    tagline_kz = models.CharField("Подпись под названием (қазақша)", max_length=255, blank=True)
+    address_kz = models.TextField("Адрес (қазақша)", blank=True)
+    org_name_en = models.CharField("Название организации (English)", max_length=100, blank=True)
+    tagline_en = models.CharField("Подпись под названием (English)", max_length=255, blank=True)
+    address_en = models.TextField("Адрес (English)", blank=True)
+
+    translated_fields = ("org_name", "tagline", "address")
+
+    edit_handler = TabbedInterface([
+        ObjectList([
+            FieldPanel("org_name"),
+            FieldPanel("tagline"),
+            FieldPanel("address"),
+            FieldPanel("phones", help_text="Пояснения к телефонам на казахском и английском — внутри каждого телефона."),
+            FieldPanel("email"),
+            FieldPanel("mail_url"),
+        ], heading="Русский"),
+        ObjectList([FieldPanel("org_name_kz"), FieldPanel("tagline_kz"), FieldPanel("address_kz")], heading="Қазақша"),
+        ObjectList([FieldPanel("org_name_en"), FieldPanel("tagline_en"), FieldPanel("address_en")], heading="English"),
+    ])
+
+    class Meta:
+        verbose_name = "Подвал сайта"
+

@@ -178,6 +178,12 @@
 
 Проверено (Playwright): меню «…» в списке «Объявлений» → подтверждение → запись в «Архиве»; редактор → меню публикации «Вернуть в объявления» → обратно, адрес исходный, `live`, без черновика, 2 записи `wagtail.move` в журнале.
 
+## Подвал сайта (2026-09-28)
+
+Просьба: «создай футер и заполни контентом» — футера до этого не было вообще. Сделал редактируемым: `FooterSettings(TranslatedFieldsMixin, BaseSiteSetting)` + `wagtail.contrib.settings` + context processor → в шаблоне `settings.content.FooterSettings`. `get_translated` вынесен из `TranslatedPage` в `TranslatedFieldsMixin` (общий для страниц и настроек). Телефоны — StreamField из `PhoneBlock` (номер + note/note_kz/note_en); тег `ml` научился брать переводы из StructValue (ключи `note`, `note_kz`…) и `lines=True` для многострочного адреса. Контент — с подвала psa.kz (ru/kz/en, миграция 0011); в EN-версии psa.kz телефон закупок 79 89 25 вместо 79 89 75 — взял 75 (ru/kz).
+
+- **Пользователь сменил пароль admin** (старый `PsaLocalDev2026!` больше не подходит, last_login 13:03 UTC) — не сбрасывал; из README старый пароль убрал. Для проверок админки без пароля — `django.test.Client(HTTP_HOST="localhost").force_login(user)` в `manage.py shell`, не создавать временных суперюзеров.
+
 ## Vercel (устарело с переходом на Django-монолит)
 
 - Проект `psa-landing` в команде `zhomart`, `projectId`/`orgId` — в `.vercel/project.json` (гитигнорится, не в репозитории).
