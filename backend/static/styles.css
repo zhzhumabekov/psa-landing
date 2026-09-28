@@ -50,6 +50,8 @@
    ========================================================= */
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+/* Переход по якорю (#contacts и т.п.): раздел не уходит под закреплённую шапку. */
+section[id] { scroll-margin-top: var(--header-height); }
 body {
   margin: 0;
   font-family: var(--font-sans);
@@ -882,7 +884,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
    Контакты
    ========================================================= */
 .contacts {
-  background: var(--surface-0);
+  background: var(--surface-100);
   padding-block: var(--space-6);
 }
 
@@ -894,17 +896,84 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   margin-bottom: var(--space-5);
 }
 
-.contact-form {
+/* Слева — карточка с контактами (из «Подвала сайта»), справа — форма. */
+.contacts-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+@media (min-width: 960px) {
+  .contacts-grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--space-5);
+  }
+}
+
+.contacts-info {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  max-width: 480px;
+  background: var(--ink-900);
+  color: var(--text-inverse);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-4);
+}
+@media (min-width: 640px) {
+  .contacts-info { padding: var(--space-5); }
+}
+.contacts-info-title {
+  align-self: flex-start;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.3;
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--gold-500);
+}
+.contacts-info-item {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: var(--space-3);
+  font-size: 15px;
+  line-height: 24px;
+}
+.contacts-info-item .icon { width: 20px; height: 20px; margin-top: 20px; color: var(--gold-500); }
+.contacts-info-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(237, 239, 242, 0.6);
+  margin-bottom: 2px;
+}
+.contacts-info address { font-style: normal; }
+.contacts-info a { color: var(--text-inverse); overflow-wrap: anywhere; transition: color var(--transition-fast); }
+.contacts-info a:hover { color: var(--gold-500); }
+.contacts-info-phones { display: flex; flex-direction: column; gap: 2px; }
+.contacts-info-phones a { font-family: var(--font-mono); }
+.contacts-info-note { color: rgba(237, 239, 242, 0.6); font-size: 13px; }
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background: var(--surface-0);
+  border: 1px solid var(--border-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4);
+}
+.form-row { display: grid; gap: var(--space-2); }
+@media (min-width: 640px) {
+  .contact-form { padding: var(--space-5); }
+  .form-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 6px;
 }
 .form-field label {
   font-size: 13px;
@@ -913,15 +982,21 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .form-field input,
 .form-field textarea {
+  width: 100%;
   font: inherit;
   font-size: 15px;
+  line-height: 22px;
   color: var(--ink-900);
-  background: var(--surface-100);
-  border: 1.5px solid var(--border-200);
+  background: var(--surface-0);
+  border: 1px solid var(--border-200);
   border-radius: var(--radius-md);
-  padding: 10px var(--space-3);
+  padding: 11px 14px;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
+.form-field input::placeholder,
+.form-field textarea::placeholder { color: #8A949E; }
+.form-field input:hover,
+.form-field textarea:hover { border-color: #B7C0C9; }
 .form-field input:focus,
 .form-field textarea:focus {
   outline: none;
@@ -930,26 +1005,48 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .form-field textarea {
   resize: vertical;
+  min-height: 140px;
 }
 
 .form-field.has-error input,
 .form-field.has-error textarea {
   border-color: #B3261E;
+  box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.1);
 }
 
+/* Место под ошибку зарезервировано — поля не прыгают при проверке. */
 .form-error {
   min-height: 18px;
   font-size: 12px;
+  line-height: 18px;
   color: #B3261E;
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+@media (min-width: 640px) {
+  .form-actions { flex-direction: row; align-items: center; }
+  .form-actions .btn { flex-shrink: 0; min-width: 200px; }
 }
 
 .form-status {
   font-size: 14px;
-  font-weight: 700;
+  line-height: 20px;
   margin: 0;
 }
-.form-status.is-success { color: var(--state-success); }
-.form-status.is-error { color: #B3261E; }
+.form-status:empty { display: none; }
+.form-status.is-success,
+.form-status.is-error {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+}
+.form-status.is-success { color: var(--state-success); background: rgba(46, 125, 91, 0.1); }
+.form-status.is-error { color: #B3261E; background: rgba(179, 38, 30, 0.08); }
 /* Поле-ловушка для спам-ботов в форме «Контакты» — убрано с экрана, но не display:none. */
 .form-trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 .contact-form button[disabled] { opacity: 0.6; cursor: progress; }

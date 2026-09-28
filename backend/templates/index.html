@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load multilang %}
 
 {% block content %}
 
@@ -165,35 +166,82 @@
       <h2 class="section-title" data-i18n="contacts.title">Контакты</h2>
       <p class="contacts-lead" data-i18n="contacts.lead">Заполните форму, и мы ответим на ваше обращение.</p>
 
-      <form class="contact-form" id="contact-form" action="{% url 'contact_submit' %}" method="post" novalidate>
-        {% csrf_token %}
-        {# Ловушка для спам-ботов: людям не видна, боты заполняют (content/contact.py). #}
-        <div class="form-trap" aria-hidden="true">
-          <label for="contact-website">Сайт</label>
-          <input type="text" id="contact-website" name="website" tabindex="-1" autocomplete="off">
-        </div>
-        <div class="form-field">
-          <label for="contact-name" data-i18n="contacts.form.name_label">Имя</label>
-          <input type="text" id="contact-name" name="name" autocomplete="name" data-i18n-placeholder="contacts.form.name_placeholder" placeholder="Как к вам обращаться">
-          <span class="form-error" id="contact-name-error"></span>
-        </div>
+      <div class="contacts-grid">
+        {# Контакты — те же, что в подвале: админка → «Настройки» → «Подвал сайта». #}
+        {% with footer=settings.content.FooterSettings %}
+        <aside class="contacts-info" aria-labelledby="contacts-info-title">
+          <h3 class="contacts-info-title" id="contacts-info-title" data-i18n="contacts.info.title">Контактные данные</h3>
 
-        <div class="form-field">
-          <label for="contact-email" data-i18n="contacts.form.email_label">E-mail</label>
-          <input type="email" id="contact-email" name="email" autocomplete="email" data-i18n-placeholder="contacts.form.email_placeholder" placeholder="name@example.com">
-          <span class="form-error" id="contact-email-error"></span>
-        </div>
+          {% if footer.address %}
+          <div class="contacts-info-item">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+            <div>
+              <p class="contacts-info-label" data-i18n="contacts.info.address">Адрес</p>
+              <address>{% ml footer "address" lines=True %}</address>
+            </div>
+          </div>
+          {% endif %}
 
-        <div class="form-field">
-          <label for="contact-message" data-i18n="contacts.form.message_label">Сообщение</label>
-          <textarea id="contact-message" name="message" rows="4" data-i18n-placeholder="contacts.form.message_placeholder" placeholder="Опишите ваш вопрос"></textarea>
-          <span class="form-error" id="contact-message-error"></span>
-        </div>
+          {% if footer.phones %}
+          <div class="contacts-info-item">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 6 6L15 14l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>
+            <div>
+              <p class="contacts-info-label" data-i18n="contacts.info.phones">Телефоны</p>
+              <ul class="contacts-info-phones">
+                {% for block in footer.phones %}
+                <li><a href="tel:{{ block.value.number|cut:' ' }}">{{ block.value.number }}</a>{% if block.value.note %} <span class="contacts-info-note">{% ml block.value "note" %}</span>{% endif %}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+          {% endif %}
 
-        <button type="submit" class="btn btn-primary" data-i18n="contacts.form.submit">Отправить</button>
+          {% if footer.email %}
+          <div class="contacts-info-item">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg>
+            <div>
+              <p class="contacts-info-label" data-i18n="contacts.info.email">E-mail</p>
+              <a href="mailto:{{ footer.email }}">{{ footer.email }}</a>
+            </div>
+          </div>
+          {% endif %}
+        </aside>
+        {% endwith %}
 
-        <p class="form-status" id="contact-form-status" role="status" aria-live="polite"></p>
-      </form>
+        <form class="contact-form" id="contact-form" action="{% url 'contact_submit' %}" method="post" novalidate>
+          {% csrf_token %}
+          {# Ловушка для спам-ботов: людям не видна, боты заполняют (content/contact.py). #}
+          <div class="form-trap" aria-hidden="true">
+            <label for="contact-website">Сайт</label>
+            <input type="text" id="contact-website" name="website" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label for="contact-name" data-i18n="contacts.form.name_label">Имя</label>
+              <input type="text" id="contact-name" name="name" autocomplete="name" maxlength="200" data-i18n-placeholder="contacts.form.name_placeholder" placeholder="Как к вам обращаться">
+              <span class="form-error" id="contact-name-error"></span>
+            </div>
+
+            <div class="form-field">
+              <label for="contact-email" data-i18n="contacts.form.email_label">E-mail</label>
+              <input type="email" id="contact-email" name="email" autocomplete="email" data-i18n-placeholder="contacts.form.email_placeholder" placeholder="name@example.com">
+              <span class="form-error" id="contact-email-error"></span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="contact-message" data-i18n="contacts.form.message_label">Сообщение</label>
+            <textarea id="contact-message" name="message" rows="6" data-i18n-placeholder="contacts.form.message_placeholder" placeholder="Опишите ваш вопрос"></textarea>
+            <span class="form-error" id="contact-message-error"></span>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" data-i18n="contacts.form.submit">Отправить</button>
+            <p class="form-status" id="contact-form-status" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
     </div>
   </section>
 
