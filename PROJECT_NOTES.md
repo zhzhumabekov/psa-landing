@@ -170,6 +170,14 @@
 
 По просьбе удалены поля `status`, `deadline`, `external_url` у `ProcurementPage` (миграция 0009; перед этим проверил — ни у одной из 560 записей они не были заполнены, импорт их не ставил). Из шаблонов убраны бейдж статуса, «До <дата>» и «Подробнее ↗»; из `script.js` — ключи `procurement.status.*` и `feed.details`; `DATE_PREFIXES["deadline"]` в `multilang.py` опустел (механизм приставок к датам оставлен). `external_url` у `DocumentPage` («Ссылка, если файл не загружен») — отдельное поле, НЕ трогал. Бэкап — `%TEMP%/db.before-remove-fields.sqlite3`.
 
+## Кнопки «Перенести в архив» / «Вернуть в объявления» (2026-09-28)
+
+`content/procurement_transfer.py` (view с подтверждением GET → POST, `MovePageAction` с `user` — права/журнал/url_path) + `content/wagtail_hooks.py`: `register_admin_urls` (`/admin/procurement/transfer/<id>/`), `register_page_listing_more_buttons` и `register_page_header_buttons` (`PageMenuItem`-подкласс, priority 11 — рядом со штатным «Переместить»), `register_page_action_menu_item` (`ActionMenuItem` со ссылкой, только view=edit). Пары — по slug подразделов (`TRANSFERS`).
+
+- **Грабли:** (1) новый `wagtail_hooks.py` подхватывается только после перезапуска runserver; (2) коллизии slug: в архиве есть записи с тем же названием → первый вариант (только добавлять `-N`) дал после круга туда-обратно `…-organi-2-2`; теперь сначала снимается числовой суффикс, потом подбирается свободный — круг восстанавливает исходный адрес; (3) `page.save(update_fields=["slug"])` НЕ пересчитывает `url_path` — нужно `set_url_path(parent)` и `update_fields=["slug","url_path"]` (для самого переноса неважно — MovePageAction пересчитывает, но рассинхрон оставался бы при ручной правке). Тестовой записи (реальное объявление id 2273) после проверки вернул исходный slug.
+
+Проверено (Playwright): меню «…» в списке «Объявлений» → подтверждение → запись в «Архиве»; редактор → меню публикации «Вернуть в объявления» → обратно, адрес исходный, `live`, без черновика, 2 записи `wagtail.move` в журнале.
+
 ## Vercel (устарело с переходом на Django-монолит)
 
 - Проект `psa-landing` в команде `zhomart`, `projectId`/`orgId` — в `.vercel/project.json` (гитигнорится, не в репозитории).

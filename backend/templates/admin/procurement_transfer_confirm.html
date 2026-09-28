@@ -1,0 +1,18 @@
+{% extends "wagtailadmin/base.html" %}
+{% load wagtailadmin_tags %}
+{% block titletag %}{{ label }}: {{ page.get_admin_display_title }}{% endblock %}
+{% block content %}
+    {% include "wagtailadmin/shared/header.html" with title=label subtitle=page.get_admin_display_title icon="arrow-right-full" %}
+
+    <div class="nice-padding">
+        <p>Перенести запись из «{{ source.title }}» в «{{ target.title }}»?</p>
+        <p class="help-block">Запись останется опубликованной (или черновиком — как сейчас), изменится только подраздел и адрес страницы на сайте.</p>
+
+        <form action="" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next_url }}">
+            <button type="submit" class="button">{{ label }}</button>
+            <a href="{% if next_url %}{{ next_url }}{% else %}{% url 'wagtailadmin_pages:edit' page.pk %}{% endif %}" class="button button-secondary">Отмена</a>
+        </form>
+    </div>
+{% endblock %}
