@@ -14,11 +14,9 @@
       <div class="procurement-main">
 
       <div class="container--narrow">
-        {% if page.date or page.status or page.deadline %}
+        {% if page.date %}
         <div class="feed-item-meta">
           {% if page.date %}<span>{% ml_date page.date %}</span>{% endif %}
-          {% if page.status %}<span class="badge{% if page.is_closed %} is-closed{% endif %}" data-i18n="procurement.status.{% if page.is_closed %}closed{% else %}open{% endif %}">{{ page.status }}</span>{% endif %}
-          {% if page.deadline %}<span>{% ml_date page.deadline "deadline" %}</span>{% endif %}
         </div>
         {% endif %}
         <h1 class="section-title detail-title">{% ml page "title" %}</h1>
@@ -29,7 +27,6 @@
         <h2 class="detail-subtitle" data-i18n="procurement.files">Файлы</h2>
         {% include "includes/file_links.html" with files=page.files %}
         {% endif %}
-        {% if page.external_url %}<p><a class="feed-item-link" href="{{ page.external_url }}" target="_blank" rel="noopener noreferrer" data-i18n="feed.details">Подробнее ↗</a></p>{% endif %}
 
         <a href="{% pageurl page.get_parent %}" class="back-link back-link--bottom">← <span data-i18n="procurement.back_to_list">Возврат к списку</span></a>
       </div>

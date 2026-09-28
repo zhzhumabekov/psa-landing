@@ -19,11 +19,9 @@
       <div class="feed-list">
         {% for entry in entries %}
         <article class="feed-item">
-          {% if entry.date or entry.status or entry.deadline %}
+          {% if entry.date %}
           <div class="feed-item-meta">
             {% if entry.date %}<span>{% ml_date entry.date %}</span>{% endif %}
-            {% if entry.status %}<span class="badge{% if entry.is_closed %} is-closed{% endif %}" data-i18n="procurement.status.{% if entry.is_closed %}closed{% else %}open{% endif %}">{{ entry.status }}</span>{% endif %}
-            {% if entry.deadline %}<span>{% ml_date entry.deadline "deadline" %}</span>{% endif %}
           </div>
           {% endif %}
           <h3 class="feed-item-title"><a href="{% pageurl entry %}">{% ml entry "title" %}</a></h3>

@@ -31,9 +31,9 @@ DATE_FORMATS = {
     "kz": "{d} {m} {y} ж.",
     "en": "{d} {m} {y}",
 }
-DATE_PREFIXES = {
-    "deadline": {"ru": "До {}", "kz": "{} дейін", "en": "Until {}"},
-}
+# Приставки к дате: {% ml_date value "<вид>" %}. Сейчас не используются
+# (срок подачи у закупок убран), механизм оставлен.
+DATE_PREFIXES = {}
 
 
 def _group(tag, values):

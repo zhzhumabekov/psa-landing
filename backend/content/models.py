@@ -174,19 +174,7 @@ class LocalContentIndexPage(SectionIndexPage):
 class ProcurementPage(TranslatedPage):
     """Запись раздела «Закупки»: объявление, контактное лицо, план закупок…"""
 
-    STATUS_OPEN = "Открыт"
-    STATUS_CLOSED = "Завершён"
-    STATUS_CHOICES = [
-        (STATUS_OPEN, "Открыт"),
-        (STATUS_CLOSED, "Завершён"),
-    ]
-
     date = models.DateField("Дата", null=True, blank=True)
-    status = models.CharField(
-        "Статус", max_length=20, choices=STATUS_CHOICES, blank=True, default="",
-        help_text="Необязательно — для объявлений о закупках, у которых есть приём заявок.",
-    )
-    deadline = models.DateField("Срок подачи", null=True, blank=True)
     description = StreamField(ContentBlocks(), verbose_name="Текст", blank=True)
     # Файлы общие для всех языков — во вкладках переводов их нет.
     attachments = StreamField(
@@ -195,8 +183,6 @@ class ProcurementPage(TranslatedPage):
         blank=True,
         help_text="Документы для скачивания (PDF, XLSX…) — из библиотеки «Документы» или загрузить новые.",
     )
-    # Не `url` — это имя занято свойством Wagtail Page.url (адрес самой страницы).
-    external_url = models.URLField("Ссылка (тендерная площадка и т.п.)", blank=True)
 
     title_kz = title_translation("қазақша")
     description_kz = body_translation("Текст", "қазақша")
@@ -212,9 +198,6 @@ class ProcurementPage(TranslatedPage):
         FieldPanel("date"),
         FieldPanel("description"),
         FieldPanel("attachments"),
-        FieldPanel("status"),
-        FieldPanel("deadline"),
-        FieldPanel("external_url"),
     ]
 
     class Meta:
@@ -222,10 +205,6 @@ class ProcurementPage(TranslatedPage):
         verbose_name_plural = "Закупки: записи"
 
     preview_source = "description"
-
-    @property
-    def is_closed(self):
-        return self.status == self.STATUS_CLOSED
 
     @property
     def files(self):
