@@ -1,19 +1,14 @@
 {% extends "base.html" %}
-{% load multilang %}
+{% load static multilang %}
 
 {% block content %}
 
   <!-- ===== HERO ===== -->
   <section class="hero" id="hero">
-    <div class="hero-decor" aria-hidden="true">
-      <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="200" cy="200" r="40" class="ring"/>
-        <circle cx="200" cy="200" r="110" class="ring"/>
-        <circle cx="200" cy="200" r="180" class="ring"/>
-      </svg>
-    </div>
+    {# Фон — интерактивная карта изолиний, рисует static/hero.js #}
+    <canvas class="hero-canvas" id="hero-canvas" aria-hidden="true"></canvas>
 
-    <div class="container">
+    <div class="container hero-content">
       <div class="hero-inner">
         <p class="eyebrow eyebrow--on-dark" data-i18n="hero.eyebrow">Полномочный орган Правительства Республики Казахстан</p>
         <h1 class="hero-title" data-i18n="hero.title">Представляем интересы государства в&nbsp;соглашениях о&nbsp;разделе продукции</h1>
@@ -25,6 +20,8 @@
         </div>
       </div>
     </div>
+
+    <a href="#about" class="hero-scroll" data-i18n-aria-label="hero.scroll" aria-label="Прокрутить вниз"></a>
   </section>
 
   <!-- ===== О КОМПАНИИ ===== -->
@@ -246,3 +243,5 @@
   </section>
 
 {% endblock %}
+
+{% block scripts %}<script src="{% static 'hero.js' %}" defer></script>{% endblock %}

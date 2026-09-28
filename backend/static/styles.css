@@ -357,57 +357,69 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 
 /* =========================================================
-   Hero
+   Hero — на весь экран, фон — интерактивная карта изолиний (static/hero.js)
    ========================================================= */
 .hero {
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  /* Весь экран под закреплённой шапкой; svh — без прыжков из-за панели браузера на телефоне. */
+  min-height: calc(100vh - var(--header-height));
+  min-height: calc(100svh - var(--header-height));
   background:
-    radial-gradient(ellipse 700px 500px at 85% 0%, rgba(28, 78, 128, 0.55), transparent 60%),
+    radial-gradient(ellipse 900px 650px at 80% 10%, rgba(28, 78, 128, 0.5), transparent 65%),
     linear-gradient(160deg, var(--surface-900) 0%, var(--ink-900) 100%);
   color: var(--text-inverse);
-  padding-block: var(--space-6) 88px;
-}
-@media (min-width: 768px) {
-  .hero { padding-block: 112px 96px; }
+  padding-block: var(--space-6) 120px;
+  isolation: isolate;
 }
 
-.hero-decor {
+.hero-canvas {
   position: absolute;
-  top: 50%;
-  right: -80px;
-  transform: translateY(-50%);
-  width: 420px;
-  height: 420px;
-  opacity: 0.5;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: -2;
   pointer-events: none;
-  display: none;
+  opacity: 0;
+  transition: opacity 1.2s ease-out;
 }
-@media (min-width: 1024px) {
-  .hero-decor { display: block; }
+.hero--animated .hero-canvas { opacity: 1; }
+
+/* Затемнение под текстом — линии не мешают читать. */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(10, 31, 51, 0.35) 0%, rgba(10, 31, 51, 0.7) 100%);
 }
-.hero-decor svg { width: 100%; height: 100%; }
-.hero-decor .ring {
-  fill: none;
-  stroke: var(--text-inverse);
-  stroke-opacity: 0.25;
+@media (min-width: 960px) {
+  .hero::before {
+    background: linear-gradient(90deg, rgba(10, 31, 51, 0.88) 0%, rgba(10, 31, 51, 0.6) 38%, rgba(10, 31, 51, 0) 72%);
+  }
 }
 
-.hero-inner { max-width: 760px; position: relative; }
+.hero-content { position: relative; width: 100%; }
+.hero-inner { max-width: 780px; }
 
 .hero-title {
   font-family: var(--font-serif);
   font-weight: 700;
-  font-size: clamp(28px, 5vw, 40px);
-  line-height: 1.2;
+  font-size: clamp(32px, 5.2vw, 62px);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
   color: var(--surface-0);
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
   text-wrap: balance;
 }
 
 .hero-subtitle {
-  font-size: 18px;
-  line-height: 28px;
+  font-size: clamp(16px, 1.6vw, 19px);
+  line-height: 1.6;
   color: var(--text-inverse);
   opacity: 0.85;
   max-width: 56ch;
@@ -418,6 +430,57 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
+}
+
+/* Появление текста при загрузке — по очереди. */
+.hero-inner > * {
+  animation: hero-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.hero-inner > :nth-child(2) { animation-delay: 0.12s; }
+.hero-inner > :nth-child(3) { animation-delay: 0.24s; }
+.hero-inner > :nth-child(4) { animation-delay: 0.36s; }
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* «Листайте вниз» — к разделу «О компании». */
+.hero-scroll {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-5);
+  transform: translateX(-50%);
+  width: 28px;
+  height: 46px;
+  border: 1.5px solid rgba(237, 239, 242, 0.45);
+  border-radius: 14px;
+  transition: border-color var(--transition-fast);
+}
+.hero-scroll::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 9px;
+  width: 4px;
+  height: 8px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: var(--gold-500);
+  animation: hero-scroll 1.8s ease-in-out infinite;
+}
+.hero-scroll:hover { border-color: var(--gold-500); }
+@keyframes hero-scroll {
+  0% { opacity: 0; transform: translateY(0); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(14px); }
+}
+@media (max-height: 560px) {
+  .hero-scroll { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-inner > *, .hero-scroll::before { animation: none; }
+  .hero-canvas { transition: none; }
 }
 
 /* =========================================================
