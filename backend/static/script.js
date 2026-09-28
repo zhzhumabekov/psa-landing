@@ -17,7 +17,6 @@ const translations = {
     "nav.marketing": "Маркетинг",
     "nav.news": "Новости",
     "nav.contacts": "Контакты",
-    "header.login": "Войти",
     "header.org_line1": "Полномочный орган",
     "header.org_line2": "Правительства РК",
     "hero.eyebrow": "Полномочный орган Правительства Республики Казахстан",
@@ -126,6 +125,7 @@ const translations = {
     "error_page.404.title": "Страница не найдена",
     "error_page.404.text": "Возможно, она была удалена или перемещена, либо в адресе допущена ошибка.",
     "footer.mail": "Корпоративная почта",
+    "footer.staff_login": "Вход для сотрудников",
   },
   kz: {
     "nav.about": "Компания туралы",
@@ -135,7 +135,6 @@ const translations = {
     "nav.marketing": "Маркетинг",
     "nav.news": "Жаңалықтар",
     "nav.contacts": "Байланыс",
-    "header.login": "Кіру",
     "header.org_line1": "Қазақстан Республикасы",
     "header.org_line2": "Үкіметінің өкілетті органы",
     "hero.eyebrow": "Қазақстан Республикасы Үкіметінің өкілетті органы",
@@ -222,6 +221,7 @@ const translations = {
     "error_page.404.title": "Бет табылмады",
     "error_page.404.text": "Бет жойылған не басқа орынға ауыстырылған болуы мүмкін немесе мекенжайда қате бар.",
     "footer.mail": "Корпоративтік пошта",
+    "footer.staff_login": "Қызметкерлерге кіру",
   },
   en: {
     "nav.about": "About",
@@ -231,7 +231,6 @@ const translations = {
     "nav.marketing": "Marketing",
     "nav.news": "News",
     "nav.contacts": "Contacts",
-    "header.login": "Log in",
     "header.org_line1": "Authorized body",
     "header.org_line2": "of the RK Government",
     "hero.eyebrow": "Authorized body of the Government of the Republic of Kazakhstan",
@@ -316,6 +315,7 @@ const translations = {
     "error_page.404.title": "Page not found",
     "error_page.404.text": "It may have been removed or moved, or the address may contain a typo.",
     "footer.mail": "Corporate mail",
+    "footer.staff_login": "Staff login",
   },
 };
 

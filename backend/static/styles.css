@@ -300,11 +300,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   color: var(--text-inverse);
 }
 
-.btn-login span { display: none; }
-@media (min-width: 768px) {
-  .btn-login span { display: inline; }
-}
-
 /* --- мобильное меню: бургер --- */
 .nav-toggle {
   display: flex;
@@ -1173,4 +1168,5 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .footer-bottom p { margin: 0; }
 .site-footer .footer-bottom a { color: rgba(237, 239, 242, 0.8); }
+.footer-links { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); }
 
