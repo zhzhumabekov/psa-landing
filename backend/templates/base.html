@@ -1,4 +1,4 @@
-{% load static wagtailcore_tags wagtailuserbar %}
+{% load static wagtailcore_tags wagtailuserbar multilang navigation %}
 <!DOCTYPE html>
 <html lang="kz">
 <head>
@@ -34,9 +34,10 @@
           <details>
             <summary data-i18n="nav.projects">Проекты</summary>
             <ul class="dropdown">
-              <li><a href="{% slugurl 'home' %}#kashagan" data-i18n="project.kashagan.title">Кашаган</a></li>
-              <li><a href="{% slugurl 'home' %}#karachaganak" data-i18n="project.karachaganak.title">Карачаганак</a></li>
-              <li><a href="{% slugurl 'home' %}#dunga" data-i18n="project.dunga.title">Дунга</a></li>
+              <li><a href="{% slugurl 'projects' %}" data-i18n="nav.all_projects">Все проекты</a></li>
+              {% menu_projects as projects %}{% for project in projects %}
+              <li><a href="{% pageurl project %}">{% ml project "title" %}</a></li>
+              {% endfor %}
             </ul>
           </details>
         </li>

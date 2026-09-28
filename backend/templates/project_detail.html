@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags multilang %}
+
+{% block title %}{{ page.title }} — «PSA» ЖШС{% endblock %}
+{% block description %}{% if page.search_description %}{{ page.search_description }}{% elif page.teaser %}{{ page.teaser }}{% else %}{% ml_preview page 30 "ru" as preview %}{{ preview|striptags }}{% endif %}{% endblock %}
+
+{% block content %}
+
+  <!-- ===== ПРОЕКТЫ: ЗАПИСЬ ===== -->
+  <section class="projects project-detail" id="project-detail">
+    <div class="container container--narrow">
+      <a href="{% pageurl page.get_parent %}" class="back-link">← <span data-i18n="nav.projects">Проекты</span></a>
+
+      {% if page.region %}<p class="eyebrow">{% ml page "region" %}</p>{% else %}<p class="eyebrow" data-i18n="nav.projects">Проекты</p>{% endif %}
+      <h1 class="section-title">{% ml page "title" %}</h1>
+      {% if page.teaser %}<p class="page-lead">{% ml page "teaser" %}</p>{% endif %}
+
+      {% ml_blocks page "body" as body %}{% if body %}<div class="feed-item-text detail-body">{{ body }}</div>{% endif %}
+    </div>
+  </section>
+
+{% endblock %}

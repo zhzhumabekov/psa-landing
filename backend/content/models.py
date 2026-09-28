@@ -52,11 +52,13 @@ def body_translation(verbose_name, lang_name):
 
 # Главная: Hero/О компании/Проекты/Партнёры/Контакты — статичный контент
 # в шаблоне (переводы на kz/ru/en — в static/script.js), в БД только сама
-# страница как корень дерева.
+# страница как корень дерева. Блок «Проекты» на главной (карточки + модалки)
+# тоже статичный — отдельно от раздела «Проекты» (ProjectsIndexPage).
 class HomePage(Page):
     template = "index.html"
     max_count = 1
     subpage_types = [
+        "content.ProjectsIndexPage",
         "content.LocalContentIndexPage",
         "content.ProcurementIndexPage",
         "content.DocumentsIndexPage",
@@ -85,6 +87,50 @@ class SectionIndexPage(Page):
         context = super().get_context(request, *args, **kwargs)
         context["entries"] = self.get_entries()
         return context
+
+
+class ProjectPage(TranslatedPage):
+    region = models.CharField("Регион", max_length=100, blank=True)
+    teaser = models.CharField("Кратко (для карточки)", max_length=300, blank=True)
+    body = StreamField(ContentBlocks(), verbose_name="Описание проекта", blank=True)
+
+    title_kz = title_translation("қазақша")
+    region_kz = models.CharField("Регион (қазақша)", max_length=100, blank=True)
+    teaser_kz = models.CharField("Кратко (қазақша)", max_length=300, blank=True)
+    body_kz = body_translation("Описание проекта", "қазақша")
+    title_en = title_translation("English")
+    region_en = models.CharField("Регион (English)", max_length=100, blank=True)
+    teaser_en = models.CharField("Кратко (English)", max_length=300, blank=True)
+    body_en = body_translation("Описание проекта", "English")
+    translated_fields = ("title", "region", "teaser", "body")
+
+    template = "project_detail.html"
+    parent_page_types = ["content.ProjectsIndexPage"]
+    subpage_types = []
+
+    content_panels = Page.content_panels + [
+        FieldPanel("region"),
+        FieldPanel("teaser"),
+        FieldPanel("body"),
+    ]
+
+    class Meta:
+        verbose_name = "Проект"
+        verbose_name_plural = "Проекты"
+
+    preview_source = "body"
+
+
+# Порядок проектов — как в дереве страниц (перетаскиванием в админке),
+# а не по дате: дат у проектов нет.
+class ProjectsIndexPage(SectionIndexPage):
+    template = "projects.html"
+    subpage_types = ["content.ProjectPage"]
+    entry_model = ProjectPage
+    entry_ordering = ("path",)
+
+    class Meta:
+        verbose_name = "Раздел «Проекты»"
 
 
 class LocalContentPage(TranslatedPage):
@@ -265,5 +311,5 @@ class NewsIndexPage(SectionIndexPage):
         verbose_name = "Раздел «Новости»"
 
 
-for _model in (LocalContentPage, ProcurementPage, DocumentPage, NewsPage):
+for _model in (ProjectPage, LocalContentPage, ProcurementPage, DocumentPage, NewsPage):
     _model.edit_handler = _model.build_edit_handler()

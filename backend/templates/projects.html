@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags multilang %}
+
+{% block title %}Жобалар — «PSA» ЖШС{% endblock %}
+{% block description %}«PSA» ЖШС өкілдік ететін өнімді бөлу туралы келісімдер: Қашаған, Қарашығанақ, Дунга.{% endblock %}
+
+{% block content %}
+
+  <!-- ===== ПРОЕКТЫ ===== -->
+  <section class="projects projects-page" id="projects-page">
+    <div class="container">
+      <p class="eyebrow" data-i18n="projects.eyebrow">Наши проекты</p>
+      <h1 class="section-title" data-i18n="projects.title">Три соглашения о разделе продукции</h1>
+      <p class="page-lead" data-i18n="projects.page_lead">Соглашения о разделе продукции, в которых ТОО «PSA» представляет интересы государства.</p>
+
+      {% if entries %}
+      <div class="project-cards">
+        {% for entry in entries %}
+        <a class="project-card" href="{% pageurl entry %}">
+          {% if entry.region %}<span class="project-card-eyebrow">{% ml entry "region" %}</span>{% endif %}
+          <h3 class="project-card-title">{% ml entry "title" %}</h3>
+          {% if entry.teaser %}<p class="project-card-teaser">{% ml entry "teaser" %}</p>{% endif %}
+          <span class="project-card-cta" data-i18n="projects.cta_more">Подробнее →</span>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="feed-empty" data-i18n="projects.empty">Пока нет опубликованных проектов.</p>
+      {% endif %}
+    </div>
+  </section>
+
+{% endblock %}

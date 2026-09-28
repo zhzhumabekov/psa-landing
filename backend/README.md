@@ -17,6 +17,8 @@ cd backend
 
 ```
 Главная (HomePage)                          /
+├── Проекты (ProjectsIndexPage)                 /projects/
+│   └── проекты (ProjectPage)                   /projects/kashagan/ и т.д.
 ├── Местное содержание (LocalContentIndexPage)  /local-content/
 │   └── записи (LocalContentPage)               /local-content/<slug>/
 ├── Закупки (ProcurementIndexPage)              /procurement/
@@ -27,10 +29,12 @@ cd backend
     └── записи (NewsPage)                       /news/<slug>/
 ```
 
-- Главная и 4 раздела создаются автоматически миграцией `content/migrations/0002_create_site_tree.py`. Каждый раздел может быть только один (`max_count = 1`), внутри раздела можно создавать только записи своего типа.
+- Главная и 4 раздела создаются автоматически миграцией `content/migrations/0002_create_site_tree.py`, раздел «Проекты» с Кашаганом, Карачаганаком и Дунгой — `0006_create_projects.py` (тексты перенесены из модалок главной: описание — блок «Текст», факты — блок «Таблица»). Каждый раздел может быть только один (`max_count = 1`), внутри раздела можно создавать только записи своего типа.
 - Чтобы добавить запись: «Страницы» → раздел → «Добавить дочернюю страницу» → заполнить → «Опубликовать». Запись сразу появится в списке раздела (сортировка по дате, у закупок — по сроку подачи). Черновики, отложенная публикация, история версий и предпросмотр — стандартные возможности Wagtail.
 - Slug (часть адреса) Wagtail генерирует из заголовка сам, транслитом в латиницу (`WAGTAIL_ALLOW_UNICODE_SLUGS = False`), его можно поменять на вкладке «Продвижение». Там же — SEO-заголовок и описание для `<meta description>`.
-- **Slug'и разделов (`local-content`, `procurement`, `documents`, `news`) и главной (`home`) не менять** — на них завязано меню в `templates/base.html` (`{% slugurl %}`).
+- **Slug'и разделов (`projects`, `local-content`, `procurement`, `documents`, `news`) и главной (`home`) не менять** — на них завязано меню в `templates/base.html` (`{% slugurl %}`).
+- Выпадающее меню «Проекты» строится из опубликованных страниц раздела «Проекты» (тег `menu_projects`, `content/templatetags/navigation.py`) — новый проект появится в меню сам, порядок — как в дереве страниц админки (меняется перетаскиванием). У проекта нет даты; поля — регион, «кратко» (подпись на карточке) и описание блоками.
+- **Блок «Проекты» на главной (карточки + всплывающие окна) — отдельный и статичный**: тексты в `templates/index.html` и `projectDetails` в `static/script.js`, из админки не редактируется. Меню на него больше не ссылается (якоря `#kashagan` и т.п. убраны), кнопка «Наши проекты» в Hero по-прежнему прокручивает к нему.
 
 ## Языки (kz / ru / en)
 
@@ -94,7 +98,7 @@ backend/
 └── content/              — приложение: модели страниц + миграции
     ├── models.py         — HomePage, 4 *IndexPage и 4 типа записей
     ├── blocks.py         — блоки StreamField: текст, таблица, Markdown, HTML
-    └── templatetags/multilang.py — вывод переводов (ml, ml_blocks, ml_preview, ml_date)
+    └── templatetags/     — multilang.py (вывод переводов: ml, ml_blocks, ml_preview, ml_date), navigation.py (меню «Проекты»)
 ```
 
 `db.sqlite3` и `media/` (загруженные картинки и документы) — не в git, это данные, не код (см. `.gitignore`).

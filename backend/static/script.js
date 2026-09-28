@@ -37,6 +37,9 @@ const translations = {
     "projects.title": "Три соглашения о разделе продукции",
     "projects.lead": "Нажмите на карточку проекта, чтобы открыть подробное описание.",
     "projects.cta_more": "Подробнее →",
+    "projects.page_lead": "Соглашения о разделе продукции, в которых ТОО «PSA» представляет интересы государства.",
+    "projects.empty": "Пока нет опубликованных проектов.",
+    "nav.all_projects": "Все проекты",
     "project.kashagan.title": "Кашаган",
     "project.kashagan.region": "Северный Каспий",
     "project.kashagan.teaser": "Одно из крупнейших морских месторождений региона на шельфе Каспийского моря.",
@@ -136,6 +139,9 @@ const translations = {
     "projects.title": "Өнімді бөлу туралы үш келісім",
     "projects.lead": "Толық сипаттаманы ашу үшін жоба карточкасын басыңыз.",
     "projects.cta_more": "Толығырақ →",
+    "projects.page_lead": "«PSA» ЖШС мемлекет мүддесін білдіретін өнімді бөлу туралы келісімдер.",
+    "projects.empty": "Әзірге жарияланған жобалар жоқ.",
+    "nav.all_projects": "Барлық жобалар",
     "project.kashagan.title": "Қашаған",
     "project.kashagan.region": "Солтүстік Каспий",
     "project.kashagan.teaser": "Каспий теңізінің шельфіндегі аймақтың ірі теңіз кен орындарының бірі.",
@@ -213,6 +219,9 @@ const translations = {
     "projects.title": "Three production sharing agreements",
     "projects.lead": "Click a project card to open its detailed description.",
     "projects.cta_more": "Learn more →",
+    "projects.page_lead": "Production sharing agreements in which PSA LLP represents the interests of the state.",
+    "projects.empty": "No projects published yet.",
+    "nav.all_projects": "All projects",
     "project.kashagan.title": "Kashagan",
     "project.kashagan.region": "North Caspian",
     "project.kashagan.teaser": "One of the region's largest offshore fields, located on the Caspian Sea shelf.",
@@ -509,7 +518,8 @@ function closeProjectModal() {
   projectModal.close();
 }
 
-document.querySelectorAll(".project-card").forEach((card) => {
+// Только карточки главной (кнопки с модалкой); на /projects/ карточки — обычные ссылки.
+document.querySelectorAll(".project-card[data-project]").forEach((card) => {
   card.addEventListener("click", () => openProjectModal(card.dataset.project));
 });
 
