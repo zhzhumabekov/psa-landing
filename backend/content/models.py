@@ -1,5 +1,7 @@
+from django.core.paginator import Paginator
 from django.db import models
 from wagtail.admin.panels import FieldPanel, ObjectList, TabbedInterface
+from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.fields import StreamField
 from wagtail.models import Page
 
@@ -170,6 +172,8 @@ class LocalContentIndexPage(SectionIndexPage):
 
 
 class ProcurementPage(TranslatedPage):
+    """Запись раздела «Закупки»: объявление, контактное лицо, план закупок…"""
+
     STATUS_OPEN = "Открыт"
     STATUS_CLOSED = "Завершён"
     STATUS_CHOICES = [
@@ -177,31 +181,45 @@ class ProcurementPage(TranslatedPage):
         (STATUS_CLOSED, "Завершён"),
     ]
 
-    status = models.CharField("Статус", max_length=20, choices=STATUS_CHOICES, default=STATUS_OPEN)
+    date = models.DateField("Дата", null=True, blank=True)
+    status = models.CharField(
+        "Статус", max_length=20, choices=STATUS_CHOICES, blank=True, default="",
+        help_text="Необязательно — для объявлений о закупках, у которых есть приём заявок.",
+    )
     deadline = models.DateField("Срок подачи", null=True, blank=True)
-    description = StreamField(ContentBlocks(), verbose_name="Описание", blank=True)
-    url = models.URLField("Ссылка (тендерная площадка/файл)", blank=True)
+    description = StreamField(ContentBlocks(), verbose_name="Текст", blank=True)
+    # Файлы общие для всех языков — во вкладках переводов их нет.
+    attachments = StreamField(
+        [("file", DocumentChooserBlock(label="Файл"))],
+        verbose_name="Файлы",
+        blank=True,
+        help_text="Документы для скачивания (PDF, XLSX…) — из библиотеки «Документы» или загрузить новые.",
+    )
+    # Не `url` — это имя занято свойством Wagtail Page.url (адрес самой страницы).
+    external_url = models.URLField("Ссылка (тендерная площадка и т.п.)", blank=True)
 
     title_kz = title_translation("қазақша")
-    description_kz = body_translation("Описание", "қазақша")
+    description_kz = body_translation("Текст", "қазақша")
     title_en = title_translation("English")
-    description_en = body_translation("Описание", "English")
+    description_en = body_translation("Текст", "English")
     translated_fields = ("title", "description")
 
     template = "procurement_detail.html"
-    parent_page_types = ["content.ProcurementIndexPage"]
+    parent_page_types = ["content.ProcurementSectionPage"]
     subpage_types = []
 
     content_panels = Page.content_panels + [
+        FieldPanel("date"),
+        FieldPanel("description"),
+        FieldPanel("attachments"),
         FieldPanel("status"),
         FieldPanel("deadline"),
-        FieldPanel("description"),
-        FieldPanel("url"),
+        FieldPanel("external_url"),
     ]
 
     class Meta:
-        verbose_name = "Закупка"
-        verbose_name_plural = "Закупки"
+        verbose_name = "Закупки: запись"
+        verbose_name_plural = "Закупки: записи"
 
     preview_source = "description"
 
@@ -209,12 +227,63 @@ class ProcurementPage(TranslatedPage):
     def is_closed(self):
         return self.status == self.STATUS_CLOSED
 
+    @property
+    def files(self):
+        return [block.value for block in self.attachments if block.value]
 
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        section = self.get_parent().specific
+        context.update(section.subnav_context())
+        return context
+
+
+# Подраздел «Закупок» (Объявления, Архив, Контактные лица, Особый порядок) —
+# список записей с пагинацией, как на psa.kz/zakupki/.
+class ProcurementSectionPage(TranslatedPage):
+    PER_PAGE = 20
+
+    translated_fields = ("title",)
+    title_kz = title_translation("қазақша")
+    title_en = title_translation("English")
+
+    template = "procurement_section.html"
+    parent_page_types = ["content.ProcurementIndexPage"]
+    subpage_types = ["content.ProcurementPage"]
+
+    class Meta:
+        verbose_name = "Закупки: подраздел"
+        verbose_name_plural = "Закупки: подразделы"
+
+    def get_entries(self):
+        # Сначала новые; записи без даты — в конце, в порядке дерева страниц.
+        return (
+            ProcurementPage.objects.child_of(self)
+            .live()
+            .order_by(models.F("date").desc(nulls_last=True), "path")
+        )
+
+    def subnav_context(self):
+        # Вкладки-подразделы (как боковое меню на psa.kz/zakupki/).
+        return {
+            "procurement_sections": self.get_parent().specific.get_entries(),
+            "current_section": self,
+        }
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request, *args, **kwargs)
+        paginator = Paginator(self.get_entries(), self.PER_PAGE)
+        context["entries"] = paginator.get_page(request.GET.get("page"))
+        context.update(self.subnav_context())
+        return context
+
+
+# «Закупки» — карточки подразделов (порядок — как в дереве страниц).
 class ProcurementIndexPage(SectionIndexPage):
     template = "procurement.html"
-    subpage_types = ["content.ProcurementPage"]
-    entry_model = ProcurementPage
-    entry_ordering = ("-deadline",)
+    subpage_types = ["content.ProcurementSectionPage"]
+    entry_model = ProcurementSectionPage
+    entry_ordering = ("path",)
 
     class Meta:
         verbose_name = "Раздел «Закупки»"
@@ -231,7 +300,7 @@ class DocumentPage(TranslatedPage):
         on_delete=models.SET_NULL,
         related_name="+",
     )
-    url = models.URLField("Ссылка (если файл не загружен)", blank=True)
+    external_url = models.URLField("Ссылка (если файл не загружен)", blank=True)
 
     title_kz = title_translation("қазақша")
     category_kz = models.CharField("Категория (қазақша)", max_length=100, blank=True)
@@ -247,7 +316,7 @@ class DocumentPage(TranslatedPage):
         FieldPanel("category"),
         FieldPanel("date"),
         FieldPanel("document"),
-        FieldPanel("url"),
+        FieldPanel("external_url"),
     ]
 
     class Meta:
@@ -258,7 +327,7 @@ class DocumentPage(TranslatedPage):
     def file_url(self):
         if self.document:
             return self.document.url
-        return self.url
+        return self.external_url
 
 
 class DocumentsIndexPage(SectionIndexPage):
@@ -311,5 +380,5 @@ class NewsIndexPage(SectionIndexPage):
         verbose_name = "Раздел «Новости»"
 
 
-for _model in (ProjectPage, LocalContentPage, ProcurementPage, DocumentPage, NewsPage):
+for _model in (ProjectPage, LocalContentPage, ProcurementSectionPage, ProcurementPage, DocumentPage, NewsPage):
     _model.edit_handler = _model.build_edit_handler()

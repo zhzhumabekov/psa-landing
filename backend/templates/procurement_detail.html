@@ -2,24 +2,39 @@
 {% load wagtailcore_tags multilang %}
 
 {% block title %}{{ page.title }} — «PSA» ЖШС{% endblock %}
-{% block description %}{% if page.search_description %}{{ page.search_description }}{% else %}{% ml_preview page 30 "ru" as preview %}{{ preview|striptags }}{% endif %}{% endblock %}
+{% block description %}{% if page.search_description %}{{ page.search_description }}{% else %}{% ml_preview page 30 "ru" as preview %}{{ preview|striptags|default:page.title }}{% endif %}{% endblock %}
 
 {% block content %}
 
   <!-- ===== ЗАКУПКИ: ЗАПИСЬ ===== -->
   <section class="procurement procurement-detail" id="procurement-detail">
-    <div class="container container--narrow">
-      <a href="{% pageurl page.get_parent %}" class="back-link">← <span data-i18n="nav.procurement">Закупки</span></a>
+    <div class="container">
+      <div class="procurement-layout">
+      {% include "includes/procurement_subnav.html" %}
+      <div class="procurement-main">
 
-      <p class="eyebrow" data-i18n="procurement.eyebrow">Закупки</p>
-      <h1 class="section-title">{% ml page "title" %}</h1>
-      <div class="feed-item-meta">
-        <span class="badge{% if page.is_closed %} is-closed{% endif %}" data-i18n="procurement.status.{% if page.is_closed %}closed{% else %}open{% endif %}">{{ page.status }}</span>
-        {% if page.deadline %}<span>{% ml_date page.deadline "deadline" %}</span>{% endif %}
+      <div class="container--narrow">
+        {% if page.date or page.status or page.deadline %}
+        <div class="feed-item-meta">
+          {% if page.date %}<span>{% ml_date page.date %}</span>{% endif %}
+          {% if page.status %}<span class="badge{% if page.is_closed %} is-closed{% endif %}" data-i18n="procurement.status.{% if page.is_closed %}closed{% else %}open{% endif %}">{{ page.status }}</span>{% endif %}
+          {% if page.deadline %}<span>{% ml_date page.deadline "deadline" %}</span>{% endif %}
+        </div>
+        {% endif %}
+        <h1 class="section-title detail-title">{% ml page "title" %}</h1>
+
+        {% ml_blocks page "description" as description %}{% if description %}<div class="feed-item-text detail-body">{{ description }}</div>{% endif %}
+
+        {% if page.files %}
+        <h2 class="detail-subtitle" data-i18n="procurement.files">Файлы</h2>
+        {% include "includes/file_links.html" with files=page.files %}
+        {% endif %}
+        {% if page.external_url %}<p><a class="feed-item-link" href="{{ page.external_url }}" target="_blank" rel="noopener noreferrer" data-i18n="feed.details">Подробнее ↗</a></p>{% endif %}
+
+        <a href="{% pageurl page.get_parent %}" class="back-link back-link--bottom">← <span data-i18n="procurement.back_to_list">Возврат к списку</span></a>
       </div>
-
-      {% ml_blocks page "description" as description %}{% if description %}<div class="feed-item-text detail-body">{{ description }}</div>{% endif %}
-      {% if page.url %}<a class="feed-item-link" href="{{ page.url }}" target="_blank" rel="noopener noreferrer" data-i18n="feed.details">Подробнее ↗</a>{% endif %}
+      </div>
+      </div>
     </div>
   </section>
 

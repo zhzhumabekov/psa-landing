@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags multilang %}
+
+{% block title %}{{ page.title }} — «PSA» ЖШС{% endblock %}
+{% block description %}{% if page.search_description %}{{ page.search_description }}{% else %}{{ page.title }} — закупки ТОО «PSA».{% endif %}{% endblock %}
+
+{% block content %}
+
+  <!-- ===== ЗАКУПКИ: ПОДРАЗДЕЛ ===== -->
+  <section class="procurement procurement-section" id="procurement-section">
+    <div class="container">
+      <a href="{% pageurl page.get_parent %}" class="back-link">← <span data-i18n="nav.procurement">Закупки</span></a>
+      <h1 class="section-title">{% ml page "title" %}</h1>
+
+      <div class="procurement-layout">
+      {% include "includes/procurement_subnav.html" %}
+      <div class="procurement-main">
+
+      <div class="feed-list">
+        {% for entry in entries %}
+        <article class="feed-item">
+          {% if entry.date or entry.status or entry.deadline %}
+          <div class="feed-item-meta">
+            {% if entry.date %}<span>{% ml_date entry.date %}</span>{% endif %}
+            {% if entry.status %}<span class="badge{% if entry.is_closed %} is-closed{% endif %}" data-i18n="procurement.status.{% if entry.is_closed %}closed{% else %}open{% endif %}">{{ entry.status }}</span>{% endif %}
+            {% if entry.deadline %}<span>{% ml_date entry.deadline "deadline" %}</span>{% endif %}
+          </div>
+          {% endif %}
+          <h3 class="feed-item-title"><a href="{% pageurl entry %}">{% ml entry "title" %}</a></h3>
+          {% ml_preview entry as preview %}{% if preview %}<div class="feed-item-text">{{ preview }}</div>{% endif %}
+          {% include "includes/file_links.html" with files=entry.files %}
+          <a class="feed-item-link" href="{% pageurl entry %}" data-i18n="projects.cta_more">Подробнее →</a>
+        </article>
+        {% empty %}
+        <p class="feed-empty" data-i18n="feed.empty">Пока нет записей.</p>
+        {% endfor %}
+      </div>
+
+      {% if entries.paginator.num_pages > 1 %}
+      <nav class="pagination" aria-label="Страницы">
+        {% if entries.has_previous %}<a href="?page={{ entries.previous_page_number }}" data-i18n="pagination.prev">← Назад</a>{% endif %}
+        {% for number in entries.paginator.page_range %}
+          {% if number == entries.number %}<span class="is-current" aria-current="page">{{ number }}</span>
+          {% elif number == 1 or number == entries.paginator.num_pages or number|add:"-2" <= entries.number and entries.number <= number|add:"2" %}<a href="?page={{ number }}">{{ number }}</a>
+          {% elif number == 2 or number == entries.paginator.num_pages|add:"-1" %}<span class="pagination-gap">…</span>{% endif %}
+        {% endfor %}
+        {% if entries.has_next %}<a href="?page={{ entries.next_page_number }}" data-i18n="pagination.next">Вперёд →</a>{% endif %}
+      </nav>
+      {% endif %}
+      </div>
+      </div>
+    </div>
+  </section>
+
+{% endblock %}

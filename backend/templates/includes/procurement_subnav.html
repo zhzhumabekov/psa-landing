@@ -1,0 +1,8 @@
+{% load wagtailcore_tags multilang %}
+<nav class="subnav" aria-label="Подразделы закупок">
+  <ul>
+    {% for section in procurement_sections %}
+    <li><a href="{% pageurl section %}"{% if section.pk == current_section.pk %} class="is-active" aria-current="page"{% endif %}>{% ml section "title" %}</a></li>
+    {% endfor %}
+  </ul>
+</nav>

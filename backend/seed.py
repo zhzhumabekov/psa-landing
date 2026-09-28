@@ -1,6 +1,7 @@
 """Разовый скрипт: по одной примерной опубликованной странице в каждый раздел.
 Запуск: venv/Scripts/python.exe seed.py
 Безопасно перезапускать — страница с таким slug в разделе не создаётся повторно.
+«Закупки» не заполняет — их контент переносится с psa.kz: manage.py import_psa_procurement.
 """
 import os
 
@@ -16,8 +17,6 @@ from content.models import (  # noqa: E402
     LocalContentPage,
     NewsIndexPage,
     NewsPage,
-    ProcurementIndexPage,
-    ProcurementPage,
 )
 
 
@@ -37,20 +36,12 @@ print(
         date="2026-01-01",
         body="<p>Тестовая запись раздела «Местное содержание».</p>",
     )),
-    seed(ProcurementIndexPage, ProcurementPage(
-        title="Пример закупки — отредактируйте в /admin/",
-        slug="primer",
-        status=ProcurementPage.STATUS_OPEN,
-        deadline="2026-02-01",
-        description="<p>Тестовая запись.</p>",
-        url="https://example.com/tender",
-    )),
     seed(DocumentsIndexPage, DocumentPage(
         title="Пример документа — отредактируйте в /admin/",
         slug="primer",
         category="Пример категории",
         date="2026-01-01",
-        url="https://example.com/document.pdf",
+        external_url="https://example.com/document.pdf",
     )),
     seed(NewsIndexPage, NewsPage(
         title="Пример новости — отредактируйте в /admin/",

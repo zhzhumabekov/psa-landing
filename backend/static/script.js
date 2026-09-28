@@ -110,6 +110,11 @@ const translations = {
     "news.empty": "Пока нет опубликованных новостей.",
     "procurement.status.open": "Открыт",
     "procurement.status.closed": "Завершён",
+    "procurement.back_to_list": "Возврат к списку",
+    "procurement.files": "Файлы",
+    "pagination.prev": "← Назад",
+    "pagination.next": "Вперёд →",
+    "feed.empty": "Пока нет записей.",
   },
   kz: {
     "nav.about": "Компания туралы",
@@ -190,6 +195,11 @@ const translations = {
     "news.empty": "Әзірге жарияланған жаңалықтар жоқ.",
     "procurement.status.open": "Ашық",
     "procurement.status.closed": "Аяқталды",
+    "procurement.back_to_list": "Тізімге оралу",
+    "procurement.files": "Файлдар",
+    "pagination.prev": "← Артқа",
+    "pagination.next": "Алға →",
+    "feed.empty": "Әзірге жазбалар жоқ.",
   },
   en: {
     "nav.about": "About",
@@ -268,6 +278,11 @@ const translations = {
     "news.empty": "No news published yet.",
     "procurement.status.open": "Open",
     "procurement.status.closed": "Closed",
+    "procurement.back_to_list": "Back to list",
+    "procurement.files": "Files",
+    "pagination.prev": "← Previous",
+    "pagination.next": "Next →",
+    "feed.empty": "No entries yet.",
   },
 };
 

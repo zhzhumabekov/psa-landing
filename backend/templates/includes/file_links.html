@@ -1,0 +1,13 @@
+{% if files %}
+<ul class="file-links">
+  {% for doc in files %}
+  <li>
+    <a href="{{ doc.url }}" target="_blank" rel="noopener noreferrer">
+      <span class="file-links-ext">{{ doc.file_extension|upper|default:"FILE" }}</span>
+      <span class="file-links-name">{{ doc.title }}</span>
+      {% if doc.file_size %}<span class="file-links-size">{{ doc.file_size|filesizeformat }}</span>{% endif %}
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}

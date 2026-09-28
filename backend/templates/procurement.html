@@ -13,21 +13,18 @@
       <h1 class="section-title" data-i18n="procurement.title">Закупки товаров, работ и услуг</h1>
       <p class="page-lead" data-i18n="procurement.lead">Действующие и завершённые процедуры закупок ТОО «PSA».</p>
 
-      <div class="feed-list">
-        {% for entry in entries %}
-        <article class="feed-item">
-          <div class="feed-item-meta">
-            <span class="badge{% if entry.is_closed %} is-closed{% endif %}" data-i18n="procurement.status.{% if entry.is_closed %}closed{% else %}open{% endif %}">{{ entry.status }}</span>
-            {% if entry.deadline %}<span>{% ml_date entry.deadline "deadline" %}</span>{% endif %}
-          </div>
-          <h3 class="feed-item-title"><a href="{% pageurl entry %}">{% ml entry "title" %}</a></h3>
-          {% ml_preview entry as preview %}{% if preview %}<div class="feed-item-text">{{ preview }}</div>{% endif %}
-          <a class="feed-item-link" href="{% pageurl entry %}" data-i18n="feed.read_more">Читать полностью →</a>
-        </article>
-        {% empty %}
-        <p class="feed-empty" data-i18n="procurement.empty">Пока нет объявленных закупок.</p>
+      {% if entries %}
+      <div class="section-cards">
+        {% for section in entries %}
+        <a class="section-card" href="{% pageurl section %}">
+          <span class="section-card-title">{% ml section "title" %}</span>
+          <span class="section-card-cta" aria-hidden="true">→</span>
+        </a>
         {% endfor %}
       </div>
+      {% else %}
+      <p class="feed-empty" data-i18n="procurement.empty">Пока нет объявленных закупок.</p>
+      {% endif %}
     </div>
   </section>
 
