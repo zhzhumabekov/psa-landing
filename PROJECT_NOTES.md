@@ -20,7 +20,7 @@
 
 ## Текущее фактическое состояние (подробно)
 
-`psa-landing/` содержит `README.md` (обзор для пользователя, переписан 2026-09-28), `PROJECT_NOTES.md`, `.gitignore`, `.vercel/` (устарел) и `backend/` — весь сайт. Подробная техдока — `backend/README.md`.
+`psa-landing/` содержит `README.md` (обзор для пользователя, переписан 2026-09-28), `PROJECT_NOTES.md`, `.gitattributes` и `backend/` — весь сайт (корневой `.gitignore` с `.vercel` удалён 2026-09-28 при чистке — каталога `.vercel/` уже нет). Подробная техдока — `backend/README.md`.
 
 **Язык по умолчанию — казахский, выбор сохраняется между страницами** (`localStorage`, ключ `psa-lang`). Добавлено 2026-09-24 после жалобы «переключаюсь по разделам — язык сбрасывается на казахский»: каждая страница — полная загрузка (не SPA), поэтому `currentLang` обнулялась. Теперь `applyLanguage()` пишет выбор в `localStorage`, при инициализации читается оттуда (`translations[storedLang] ? storedLang : "kz"`), в try/catch.
 
@@ -176,7 +176,7 @@
 
 ## Убраны статус/срок подачи/ссылка у закупок (2026-09-28)
 
-По просьбе удалены поля `status`, `deadline`, `external_url` у `ProcurementPage` (миграция 0009; перед этим проверил — ни у одной из 560 записей они не были заполнены, импорт их не ставил). Из шаблонов убраны бейдж статуса, «До <дата>» и «Подробнее ↗»; из `script.js` — ключи `procurement.status.*` и `feed.details`; `DATE_PREFIXES["deadline"]` в `multilang.py` опустел (механизм приставок к датам оставлен). `external_url` у `DocumentPage` («Ссылка, если файл не загружен») — отдельное поле, НЕ трогал. Бэкап — `%TEMP%/db.before-remove-fields.sqlite3`.
+По просьбе удалены поля `status`, `deadline`, `external_url` у `ProcurementPage` (миграция 0009; перед этим проверил — ни у одной из 560 записей они не были заполнены, импорт их не ставил). Из шаблонов убраны бейдж статуса, «До <дата>» и «Подробнее ↗»; из `script.js` — ключи `procurement.status.*` и `feed.details`; `DATE_PREFIXES["deadline"]` в `multilang.py` опустел (при чистке 2026-09-28 механизм приставок к датам удалён целиком вместе с CSS `.badge`). `external_url` у `DocumentPage` («Ссылка, если файл не загружен») — отдельное поле, НЕ трогал. Бэкап — `%TEMP%/db.before-remove-fields.sqlite3`.
 
 ## Кнопки «Перенести в архив» / «Вернуть в объявления» (2026-09-28)
 
@@ -226,3 +226,9 @@
 Цвета: `--ink-900 #0B2440`, `--steel-700 #1C4E80`, `--gold-500 #B8924B` (единственный акцент — один на экран), `--teal-600 #0E6E6B`, `--surface-0/100/900`, `--border-200`, `--text-secondary`, `--text-inverse`, `--state-success`.
 Шрифты: PT Serif (заголовки) + PT Sans (текст) + PT Mono (реквизиты/даты) — выбраны из-за полной поддержки казахской кириллицы (ә ғ қ ң ө ұ ү h і).
 Отступы кратны 4px (`--space-1..6`), радиусы `--radius-sm/md/lg/pill`.
+
+## Чистка проекта (2026-09-28)
+
+- Удалено: `pillow_heif` (из requirements и venv — HEIC-загрузки в Wagtail не включены), пустой `content/tests.py`, CSS `.badge`/`.badge.is-closed` (статус закупок, поле удалено в 0009) и `.feed-loading` (от версии на PocketBase), механизм `DATE_PREFIXES` в `multilang.py`, двойная проверка даты в `procurement_section.html`/`procurement_detail.html`, корневой `.gitignore` (только `.vercel`), кеши `.mypy_cache`/`__pycache__`.
+- Бэкапы базы `backend/db.sqlite3.bak-*` были закоммичены (с 3aefb44) и запушены — убраны из индекса, `.gitignore` теперь `db.sqlite3*`. **В истории git они остаются.**
+- Оставлено намеренно: все прочие пакеты requirements (зависимости Wagtail/Django), приложения Wagtail в `INSTALLED_APPS`, CSS-классы, которые подставляет сам Wagtail (`ht*` таблиц, `richtext-image`/`left`/`right`/`full-width`, `responsive-object`), `content-block--*` (собираются в шаблоне).

@@ -15,9 +15,7 @@
 
       <div class="container--narrow">
         {% if page.date %}
-        <div class="feed-item-meta">
-          {% if page.date %}<span>{% ml_date page.date %}</span>{% endif %}
-        </div>
+        <div class="feed-item-meta"><span>{% ml_date page.date %}</span></div>
         {% endif %}
         <h1 class="section-title detail-title">{% ml page "title" %}</h1>
 

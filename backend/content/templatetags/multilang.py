@@ -32,9 +32,6 @@ DATE_FORMATS = {
     "kz": "{d} {m} {y} ж.",
     "en": "{d} {m} {y}",
 }
-# Приставки к дате: {% ml_date value "<вид>" %}. Сейчас не используются
-# (срок подачи у закупок убран), механизм оставлен.
-DATE_PREFIXES = {}
 
 
 def _group(tag, values):
@@ -105,13 +102,11 @@ def ml_preview(page, words=25, only_lang=None):
 
 
 @register.simple_tag
-def ml_date(value, kind=""):
+def ml_date(value):
     if not value:
         return ""
     values = []
     for lang in LANG_CODES:
         text = DATE_FORMATS[lang].format(d=f"{value.day:02d}", m=MONTHS[lang][value.month - 1], y=value.year)
-        if kind:
-            text = DATE_PREFIXES[kind][lang].format(text)
         values.append((lang, text))
     return _group("span", values)

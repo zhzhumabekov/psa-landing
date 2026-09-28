@@ -20,9 +20,7 @@
         {% for entry in entries %}
         <article class="feed-item">
           {% if entry.date %}
-          <div class="feed-item-meta">
-            {% if entry.date %}<span>{% ml_date entry.date %}</span>{% endif %}
-          </div>
+          <div class="feed-item-meta"><span>{% ml_date entry.date %}</span></div>
           {% endif %}
           <h3 class="feed-item-title"><a href="{% pageurl entry %}">{% ml entry "title" %}</a></h3>
           {% ml_preview entry as preview %}{% if preview %}<div class="feed-item-text">{{ preview }}</div>{% endif %}

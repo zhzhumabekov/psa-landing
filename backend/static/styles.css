@@ -747,7 +747,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   gap: var(--space-3);
 }
 
-.feed-loading,
 .feed-empty {
   font-size: 14px;
   color: var(--text-secondary);
@@ -772,19 +771,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   letter-spacing: 0.5px;
   text-transform: uppercase;
   color: var(--teal-600);
-}
-
-.feed-item-meta .badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-pill);
-  background: rgba(46, 125, 91, 0.12);
-  color: var(--state-success);
-}
-.feed-item-meta .badge.is-closed {
-  background: var(--border-200);
-  color: var(--text-secondary);
 }
 
 .feed-item-title {
