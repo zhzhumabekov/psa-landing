@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags multilang %}
+
+{% block title %}Маркетинг — «PSA» ЖШС{% endblock %}
+{% block description %}«PSA» ЖШС-нің маркетингтік зерттеулері туралы ақпарат.{% endblock %}
+
+{% block content %}
+
+  <!-- ===== МАРКЕТИНГ ===== -->
+  <section class="procurement" id="marketing">
+    <div class="container">
+      <p class="eyebrow" data-i18n="marketing.eyebrow">Маркетинг</p>
+      <h1 class="section-title" data-i18n="marketing.title">Маркетинговые исследования</h1>
+      <p class="page-lead" data-i18n="marketing.lead">Предстоящие и завершённые маркетинговые исследования ТОО «PSA».</p>
+
+      {% if entries %}
+      <div class="section-cards">
+        {% for section in entries %}
+        <a class="section-card" href="{% pageurl section %}">
+          <span class="section-card-title">{% ml section "title" %}</span>
+          <span class="section-card-cta" aria-hidden="true">→</span>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="feed-empty" data-i18n="feed.empty">Пока нет записей.</p>
+      {% endif %}
+    </div>
+  </section>
+
+{% endblock %}

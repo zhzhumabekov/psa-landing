@@ -316,7 +316,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
 .nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-@media (max-width: 959px) {
+@media (max-width: 1279px) {
   .nav-toggle { display: flex; }
 
   .main-nav {
@@ -345,7 +345,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   }
 }
 
-@media (min-width: 960px) {
+@media (min-width: 1280px) {
   .nav-toggle { display: none; }
   .main-nav { position: static; transform: none; }
 }

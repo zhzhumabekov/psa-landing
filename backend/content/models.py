@@ -69,6 +69,7 @@ class HomePage(Page):
         "content.ProjectsIndexPage",
         "content.LocalContentIndexPage",
         "content.ProcurementIndexPage",
+        "content.MarketingIndexPage",
         "content.DocumentsIndexPage",
         "content.NewsIndexPage",
     ]
@@ -177,8 +178,9 @@ class LocalContentIndexPage(SectionIndexPage):
         verbose_name = "Раздел «Местное содержание»"
 
 
-class ProcurementPage(TranslatedPage):
-    """Запись раздела «Закупки»: объявление, контактное лицо, план закупок…"""
+class ListEntryPage(TranslatedPage):
+    """Запись подраздела с файлами («Закупки», «Маркетинг»): дата, текст, файлы.
+    Наследник задаёт template (Wagtail не наследует его от абстрактной модели)."""
 
     date = models.DateField("Дата", null=True, blank=True)
     description = StreamField(ContentBlocks(), verbose_name="Текст", blank=True)
@@ -196,8 +198,6 @@ class ProcurementPage(TranslatedPage):
     description_en = body_translation("Текст", "English")
     translated_fields = ("title", "description")
 
-    template = "procurement_detail.html"
-    parent_page_types = ["content.ProcurementSectionPage"]
     subpage_types = []
 
     content_panels = Page.content_panels + [
@@ -207,8 +207,7 @@ class ProcurementPage(TranslatedPage):
     ]
 
     class Meta:
-        verbose_name = "Закупки: запись"
-        verbose_name_plural = "Закупки: записи"
+        abstract = True
 
     preview_source = "description"
 
@@ -223,27 +222,31 @@ class ProcurementPage(TranslatedPage):
         return context
 
 
-# Подраздел «Закупок» (Объявления, Архив, Контактные лица, Особый порядок) —
-# список записей с пагинацией, как на psa.kz/zakupki/.
-class ProcurementSectionPage(TranslatedPage):
+class ListSectionPage(TranslatedPage):
+    """Подраздел со списком записей и пагинацией, как на psa.kz
+    (Объявления/Архив в «Закупках», Предстоящие/Архив в «Маркетинге»).
+
+    Наследник задаёт template (Wagtail не наследует его от абстрактной
+    модели), entry_model, а для шаблона — nav_key/nav_label (ссылка
+    «← Закупки» и т.п.: ключ перевода nav.<nav_key> в static/script.js).
+    """
+
     PER_PAGE = 20
+    entry_model = None
+    nav_key = ""
+    nav_label = ""
 
     translated_fields = ("title",)
     title_kz = title_translation("қазақша")
     title_en = title_translation("English")
 
-    template = "procurement_section.html"
-    parent_page_types = ["content.ProcurementIndexPage"]
-    subpage_types = ["content.ProcurementPage"]
-
     class Meta:
-        verbose_name = "Закупки: подраздел"
-        verbose_name_plural = "Закупки: подразделы"
+        abstract = True
 
     def get_entries(self):
         # Сначала новые; записи без даты — в конце, в порядке дерева страниц.
         return (
-            ProcurementPage.objects.child_of(self)
+            self.entry_model.objects.child_of(self)
             .live()
             .order_by(models.F("date").desc(nulls_last=True), "path")
         )
@@ -253,6 +256,8 @@ class ProcurementSectionPage(TranslatedPage):
         return {
             "procurement_sections": self.get_parent().specific.get_entries(),
             "current_section": self,
+            "section_nav_key": self.nav_key,
+            "section_nav_label": self.nav_label,
         }
 
     def get_context(self, request, *args, **kwargs):
@@ -261,6 +266,33 @@ class ProcurementSectionPage(TranslatedPage):
         context["entries"] = paginator.get_page(request.GET.get("page"))
         context.update(self.subnav_context())
         return context
+
+
+class ProcurementPage(ListEntryPage):
+    """Запись раздела «Закупки»: объявление, контактное лицо, план закупок…"""
+
+    template = "procurement_detail.html"
+    parent_page_types = ["content.ProcurementSectionPage"]
+
+    class Meta:
+        verbose_name = "Закупки: запись"
+        verbose_name_plural = "Закупки: записи"
+
+
+# Подраздел «Закупок» (Объявления, Архив, Контактные лица, Особый порядок) —
+# список записей с пагинацией, как на psa.kz/zakupki/.
+class ProcurementSectionPage(ListSectionPage):
+    entry_model = ProcurementPage
+    nav_key = "procurement"
+    nav_label = "Закупки"
+
+    template = "procurement_section.html"
+    parent_page_types = ["content.ProcurementIndexPage"]
+    subpage_types = ["content.ProcurementPage"]
+
+    class Meta:
+        verbose_name = "Закупки: подраздел"
+        verbose_name_plural = "Закупки: подразделы"
 
 
 # «Закупки» — карточки подразделов (порядок — как в дереве страниц).
@@ -272,6 +304,43 @@ class ProcurementIndexPage(SectionIndexPage):
 
     class Meta:
         verbose_name = "Раздел «Закупки»"
+
+
+class MarketingPage(ListEntryPage):
+    """Запись раздела «Маркетинг» (как на psa.kz/marketing/)."""
+
+    template = "procurement_detail.html"
+    parent_page_types = ["content.MarketingSectionPage"]
+
+    class Meta:
+        verbose_name = "Маркетинг: запись"
+        verbose_name_plural = "Маркетинг: записи"
+
+
+# Подраздел «Маркетинга» (Предстоящие, Архив).
+class MarketingSectionPage(ListSectionPage):
+    entry_model = MarketingPage
+    nav_key = "marketing"
+    nav_label = "Маркетинг"
+
+    template = "procurement_section.html"
+    parent_page_types = ["content.MarketingIndexPage"]
+    subpage_types = ["content.MarketingPage"]
+
+    class Meta:
+        verbose_name = "Маркетинг: подраздел"
+        verbose_name_plural = "Маркетинг: подразделы"
+
+
+# «Маркетинг» — карточки подразделов (порядок — как в дереве страниц).
+class MarketingIndexPage(SectionIndexPage):
+    template = "marketing.html"
+    subpage_types = ["content.MarketingSectionPage"]
+    entry_model = MarketingSectionPage
+    entry_ordering = ("path",)
+
+    class Meta:
+        verbose_name = "Раздел «Маркетинг»"
 
 
 class DocumentPage(TranslatedPage):
@@ -365,7 +434,10 @@ class NewsIndexPage(SectionIndexPage):
         verbose_name = "Раздел «Новости»"
 
 
-for _model in (ProjectPage, LocalContentPage, ProcurementSectionPage, ProcurementPage, DocumentPage, NewsPage):
+for _model in (
+    ProjectPage, LocalContentPage, ProcurementSectionPage, ProcurementPage,
+    MarketingSectionPage, MarketingPage, DocumentPage, NewsPage,
+):
     _model.edit_handler = _model.build_edit_handler()
 
 

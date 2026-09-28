@@ -1,4 +1,5 @@
-"""Перенос записи «Закупок» между подразделами «Объявления» ↔ «Архив».
+"""Перенос записи между парными подразделами одного раздела:
+«Закупки»: «Объявления» ↔ «Архив», «Маркетинг»: «Предстоящие» ↔ «Архив».
 
 Кнопки в админке — content/wagtail_hooks.py; сам перенос — штатное
 перемещение страницы Wagtail (MovePageAction: права, журнал действий,
@@ -16,25 +17,34 @@ from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from wagtail.actions.move_page import MovePageAction
 from wagtail.models import Page
 
-from .models import ProcurementPage, ProcurementSectionPage
+from .models import MarketingPage, ProcurementPage
 
-# slug подраздела-источника → (slug подраздела-назначения, текст кнопки)
+# Модель записи → {slug подраздела-источника: (slug подраздела-назначения, текст кнопки)}.
+# Подразделы ищутся среди соседей подраздела записи, поэтому пары разных
+# разделов (оба с «archive») не пересекаются.
 TRANSFERS = {
-    "announcements": ("archive", "Перенести в архив"),
-    "archive": ("announcements", "Вернуть в объявления"),
+    ProcurementPage: {
+        "announcements": ("archive", "Перенести в архив"),
+        "archive": ("announcements", "Вернуть в объявления"),
+    },
+    MarketingPage: {
+        "future": ("archive", "Перенести в архив"),
+        "archive": ("future", "Вернуть в предстоящие"),
+    },
 }
 
 
 def get_transfer(page, user=None):
     """(подраздел-назначение, текст кнопки) или None, если перенос для этой
     страницы не предусмотрен или у пользователя нет прав на перемещение."""
-    if not issubclass(page.specific_class or Page, ProcurementPage):
+    pairs = TRANSFERS.get(page.specific_class)
+    if pairs is None:
         return None
     parent = page.get_parent()
-    if parent is None or parent.slug not in TRANSFERS:
+    if parent is None or parent.slug not in pairs:
         return None
-    target_slug, label = TRANSFERS[parent.slug]
-    target = ProcurementSectionPage.objects.sibling_of(parent, inclusive=False).filter(slug=target_slug).first()
+    target_slug, label = pairs[parent.slug]
+    target = Page.objects.sibling_of(parent, inclusive=False).filter(slug=target_slug).first()
     if target is None:
         return None
     if user is not None and not page.permissions_for_user(user).can_move_to(target):
@@ -43,7 +53,7 @@ def get_transfer(page, user=None):
 
 
 def transfer_url(page, next_url=None):
-    url = reverse("procurement_transfer", args=[page.pk])
+    url = reverse("archive_transfer", args=[page.pk])
     if next_url:
         url += "?" + urlencode({"next": next_url})
     return url
@@ -61,7 +71,7 @@ def free_slug(page, target):
     return slug
 
 
-def procurement_transfer(request, page_id):
+def archive_transfer(request, page_id):
     page = get_object_or_404(Page, pk=page_id).specific
     transfer = get_transfer(page)
     if transfer is None:
@@ -89,7 +99,7 @@ def procurement_transfer(request, page_id):
         messages.success(request, f"«{page.get_admin_display_title()}» — перенесено в «{target.title}».")
         return redirect(next_url or reverse("wagtailadmin_explore", args=[target.pk]))
 
-    return TemplateResponse(request, "admin/procurement_transfer_confirm.html", {
+    return TemplateResponse(request, "admin/archive_transfer_confirm.html", {
         "page": page,
         "source": page.get_parent(),
         "target": target,

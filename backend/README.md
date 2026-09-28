@@ -6,21 +6,53 @@
 
 Нужен Python 3.12+. Команды — из папки `backend`, в Git Bash; для PowerShell пути те же, только через `\` (`.\venv\Scripts\python.exe`).
 
-### Первый раз (новая машина / потеряли venv)
+### Первый раз (новая машина / потеряли venv) — скрипты `install.ps1` / `install.sh`
+
+Из папки `backend`:
+
+```powershell
+# Windows (PowerShell)
+powershell -ExecutionPolicy Bypass -File install.ps1                      # venv, пакеты, база, разделы, администратор
+powershell -ExecutionPolicy Bypass -File install.ps1 -ImportProcurement   # то же + перенести «Закупки» с psa.kz
+```
+
+```bash
+# Ubuntu / Debian
+bash install.sh                        # venv, пакеты, база, разделы, администратор
+bash install.sh --import-procurement   # то же + перенести «Закупки» с psa.kz
+```
+
+Скрипты одинаковые по шагам: создают `venv` (если его нет; Windows ищет Python 3.12+ через `py -3` или `python`, Ubuntu — `python3.14` … `python3.12`, `python3`) → `pip install -r requirements.txt` → `migrate` (создаст `db.sqlite3`) → **`manage.py setup_site`** → `createsuperuser`, если администратора ещё нет (спросит логин/пароль; без вопросов — если заданы переменные `DJANGO_SUPERUSER_USERNAME` и `DJANGO_SUPERUSER_PASSWORD`). Запускать повторно безопасно — удобно и после `git pull`.
+
+- **Windows:** если путь к проекту очень длинный, `pip` может упасть с `No such file or directory … Long Path support` — перенесите проект в папку покороче или включите длинные пути в Windows.
+- **Ubuntu:** в чистой системе нет пакета `python3.X-venv` — `install.sh` предложит `sudo apt install python3.X-venv`; без sudo (или если отказаться) создаст `venv --without-pip` и поставит pip через официальный `get-pip.py`. Python ниже 3.12 (Ubuntu 22.04) — поставить 3.12 из `ppa:deadsnakes/ppa`. В Ubuntu Python в venv — `venv/bin/python` (вместо `./venv/Scripts/python.exe` в командах ниже). `.gitattributes` держит `*.sh` с LF-окончаниями строк, иначе bash в Ubuntu их не выполнит.
+
+То же вручную (Git Bash):
 
 ```bash
 cd backend
 python -m venv venv
 ./venv/Scripts/python.exe -m pip install -r requirements.txt
 ./venv/Scripts/python.exe manage.py migrate           # создаст db.sqlite3 и дерево страниц
+./venv/Scripts/python.exe manage.py setup_site        # подразделы «Закупок» и «Маркетинга» с нужными адресами
 ./venv/Scripts/python.exe manage.py createsuperuser   # логин/пароль для /admin/
 ```
+
+**`manage.py setup_site`** — создаёт недостающие разделы и подразделы с нужными адресами (структура — `content/site_tree.py`):
+
+| Раздел | Подразделы (адрес) |
+|---|---|
+| Закупки `/procurement/` | Контактные лица `contacts`, Архив `archive`, Объявления `announcements`, Особый порядок `special-procedure` |
+| Маркетинг `/marketing/` | Предстоящие `future`, Архив `archive` |
+| Проекты, Местное содержание, Документы, Новости | — |
+
+Ничего не удаляет и записи не трогает. Если раздел/подраздел случайно удалили в админке — команда создаст его заново; если его создали заново вручную и адрес получился другим (`arxiv` вместо `archive`) — вернёт нужный адрес (подраздел ищется по заголовку). `--dry-run` — только показать, что будет сделано. Без правильных адресов `announcements` / `archive` / `future` не появляются кнопки «Перенести в архив».
 
 Необязательно:
 
 ```bash
 ./venv/Scripts/python.exe seed.py                                # по одной тестовой записи в каждый раздел
-./venv/Scripts/python.exe manage.py import_psa_procurement       # перенести «Закупки» с psa.kz (~310 МБ файлов, см. ниже)
+./venv/Scripts/python.exe manage.py import_psa_procurement       # заполнить «Закупки» с psa.kz (~310 МБ файлов, см. ниже)
 ```
 
 ### После `git pull`
@@ -57,16 +89,19 @@ cd backend
 ├── Закупки (ProcurementIndexPage)              /procurement/
 │   └── подразделы (ProcurementSectionPage)     /procurement/announcements/ и т.д.
 │       └── записи (ProcurementPage)            /procurement/announcements/<slug>/
+├── Маркетинг (MarketingIndexPage)             /marketing/
+│   └── подразделы (MarketingSectionPage)       /marketing/future/, /marketing/archive/
+│       └── записи (MarketingPage)              /marketing/future/<slug>/
 ├── Документы (DocumentsIndexPage)              /documents/
 │   └── записи (DocumentPage)                   /documents/<slug>/
 └── Новости (NewsIndexPage)                     /news/
     └── записи (NewsPage)                       /news/<slug>/
 ```
 
-- Главная и 4 раздела создаются автоматически миграцией `content/migrations/0002_create_site_tree.py`, раздел «Проекты» с Кашаганом, Карачаганаком и Дунгой — `0006_create_projects.py` (тексты перенесены из модалок главной: описание — блок «Текст», факты — блок «Таблица»). Каждый раздел может быть только один (`max_count = 1`), внутри раздела можно создавать только записи своего типа.
+- Главная и 4 раздела создаются автоматически миграцией `content/migrations/0002_create_site_tree.py`, раздел «Проекты» с Кашаганом, Карачаганаком и Дунгой — `0006_create_projects.py`, раздел «Маркетинг» с подразделами «Предстоящие» и «Архив» — `0013_create_marketing.py` (тексты перенесены из модалок главной: описание — блок «Текст», факты — блок «Таблица»). Каждый раздел может быть только один (`max_count = 1`), внутри раздела можно создавать только записи своего типа.
 - Чтобы добавить запись: «Страницы» → раздел → «Добавить дочернюю страницу» → заполнить → «Опубликовать». Запись сразу появится в списке раздела (сортировка по дате, у закупок — по сроку подачи). Черновики, отложенная публикация, история версий и предпросмотр — стандартные возможности Wagtail.
 - Slug (часть адреса) Wagtail генерирует из заголовка сам, транслитом в латиницу (`WAGTAIL_ALLOW_UNICODE_SLUGS = False`), его можно поменять на вкладке «Продвижение». Там же — SEO-заголовок и описание для `<meta description>`.
-- **Slug'и разделов (`projects`, `local-content`, `procurement`, `documents`, `news`) и главной (`home`) не менять** — на них завязано меню в `templates/base.html` (`{% slugurl %}`).
+- **Slug'и разделов (`projects`, `local-content`, `procurement`, `marketing`, `documents`, `news`) и главной (`home`) не менять** — на них завязано меню в `templates/base.html` (`{% slugurl %}`).
 - Выпадающее меню «Проекты» строится из опубликованных страниц раздела «Проекты» (тег `menu_projects`, `content/templatetags/navigation.py`) — новый проект появится в меню сам, порядок — как в дереве страниц админки (меняется перетаскиванием). У проекта нет даты; поля — регион, «кратко» (подпись на карточке) и описание блоками.
 - **Блок «Проекты» на главной (карточки + всплывающие окна) — отдельный и статичный**: тексты в `templates/index.html` и `projectDetails` в `static/script.js`, из админки не редактируется. Меню на него больше не ссылается (якоря `#kashagan` и т.п. убраны), кнопка «Наши проекты» в Hero по-прежнему прокручивает к нему.
 
@@ -80,12 +115,14 @@ cd backend
 
 Запись (`ProcurementPage`): дата, текст (блоки: текст, таблица, Markdown, HTML), **«Файлы»** — документы из библиотеки, общие для всех языков, выводятся списком с типом и размером файла. (Полей «Статус», «Срок подачи» и «Ссылка на тендерную площадку» нет — убраны по просьбе, миграция `0009`.) Контактные лица — тоже записи (ФИО — заголовок, должность/телефон/e-mail — в тексте).
 
-**Объявление → архив и обратно.** У записей подразделов «Объявления» и «Архив» в админке есть пункт **«Перенести в архив»** / **«Вернуть в объявления»** — в меню «…» у записи в списке страниц, в меню «…» в шапке редактора и в меню рядом с «Опубликовать». После подтверждения запись перемещается (штатное перемещение Wagtail: проверка прав, запись в журнале, новый адрес страницы; опубликованность и черновик не меняются). Если в назначении уже есть запись с таким же адресом, к slug добавляется `-2`, `-3`…; при возврате суффикс снимается, и адрес восстанавливается. Логика — `content/procurement_transfer.py`, кнопки — `content/wagtail_hooks.py`; пары подразделов определяются по slug `announcements` ↔ `archive`, поэтому **эти slug не менять**.
+**Объявление → архив и обратно.** У записей подразделов «Объявления» и «Архив» в админке есть пункт **«Перенести в архив»** / **«Вернуть в объявления»** — в меню «…» у записи в списке страниц, в меню «…» в шапке редактора и в меню рядом с «Опубликовать». После подтверждения запись перемещается (штатное перемещение Wagtail: проверка прав, запись в журнале, новый адрес страницы; опубликованность и черновик не меняются). Если в назначении уже есть запись с таким же адресом, к slug добавляется `-2`, `-3`…; при возврате суффикс снимается, и адрес восстанавливается. Логика — `content/archive_transfer.py`, кнопки — `content/wagtail_hooks.py`; пары подразделов определяются по slug `announcements` ↔ `archive` (в «Маркетинге» — `future` ↔ `archive`, кнопка «Вернуть в предстоящие»), поэтому **эти slug не менять**. Новую пару добавить — в `TRANSFERS` в `archive_transfer.py`.
+
+**Маркетинг** (`/marketing/`, как psa.kz/marketing/) устроен так же, как «Закупки»: подразделы «Предстоящие» (`future`) и «Архив» (`archive`), записи с датой, текстом и файлами. Общие поля — в абстрактных `ListSectionPage` / `ListEntryPage` (`content/models.py`), шаблоны подраздела и записи общие с «Закупками» (`procurement_section.html`, `procurement_detail.html`), у страницы раздела свой — `marketing.html`.
 
 **Контент перенесён с psa.kz** командой:
 
 ```bash
-./venv/Scripts/python.exe manage.py import_psa_procurement            # если подразделов ещё нет
+./venv/Scripts/python.exe manage.py import_psa_procurement            # если в подразделах ещё нет записей (пустые подразделы от setup_site заполняются)
 ./venv/Scripts/python.exe manage.py import_psa_procurement --replace  # удалить текущие подразделы и файлы коллекции «Закупки», импортировать заново
 ```
 
@@ -151,7 +188,7 @@ backend/
 └── content/              — приложение: модели страниц + миграции
     ├── models.py         — HomePage, 4 *IndexPage и 4 типа записей
     ├── blocks.py         — блоки StreamField: текст, таблица, Markdown, HTML
-    ├── wagtail_hooks.py, procurement_transfer.py — кнопки «Перенести в архив» / «Вернуть в объявления»
+    ├── wagtail_hooks.py, archive_transfer.py — кнопки «Перенести в архив» / «Вернуть в объявления» / «Вернуть в предстоящие»
     ├── templatetags/     — multilang.py (вывод переводов: ml, ml_blocks, ml_preview, ml_date), navigation.py (меню «Проекты»)
     └── management/commands/import_psa_procurement.py — перенос «Закупок» с psa.kz
 ```

@@ -14,6 +14,101 @@
 - **Весь редактируемый контент — в админке Wagtail** (`/admin/`): дерево страниц, библиотеки картинок и документов, настройки подвала.
 - **Переключатель языков ҚАЗ / РУС / ENG — на клиенте** (JS), без перезагрузки и без смены адреса: сервер отдаёт все заполненные переводы сразу, скрипт показывает нужный. Выбор запоминается в браузере.
 
+## Установка
+
+Два одинаковых скрипта в папке `backend`: **`install.ps1`** — для Windows, **`install.sh`** — для Ubuntu (и Debian). Оба делают одно и то же:
+
+1. создают виртуальное окружение `venv` (если его ещё нет);
+2. ставят пакеты из `requirements.txt`;
+3. создают базу `db.sqlite3` и применяют миграции;
+4. создают все разделы и подразделы сайта с нужными адресами (`manage.py setup_site`, таблица ниже);
+5. спрашивают логин, e-mail и пароль администратора для `/admin/` (если администратора ещё нет).
+
+В конце печатают «Готово» и команду запуска. Если что-то пошло не так — останавливаются и пишут, на каком шаге. Администратора без вопросов (например, на сервере) — заранее задать переменные `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_PASSWORD` и при желании `DJANGO_SUPERUSER_EMAIL`.
+
+### Windows
+
+Нужны **Python 3.12+** ([python.org](https://www.python.org/downloads/), при установке отметить «Add python.exe to PATH») и Git. В PowerShell:
+
+```powershell
+git clone https://github.com/zhzhumabekov/psa-landing.git
+cd psa-landing\backend
+powershell -ExecutionPolicy Bypass -File install.ps1
+```
+
+Путь к папке лучше короткий (например, `C:\Projects\psa-landing`): при очень длинном пути `pip` падает с ошибкой `No such file or directory … Long Path support`.
+
+Запуск сайта:
+
+```powershell
+.\venv\Scripts\python.exe manage.py runserver 127.0.0.1:8000
+```
+
+### Ubuntu
+
+Нужны **Python 3.12+** и Git. В Ubuntu 24.04 и новее Python подходящий уже есть; в 22.04 — `sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt install python3.12 python3.12-venv`.
+
+```bash
+sudo apt install git            # если git ещё нет
+git clone https://github.com/zhzhumabekov/psa-landing.git
+cd psa-landing/backend
+bash install.sh
+```
+
+Если в системе нет пакета `python3.X-venv` (в чистой Ubuntu его обычно нет), скрипт предложит поставить его через `sudo apt`; если отказаться или sudo недоступен — создаст `venv` без него и поставит pip официальным `get-pip.py`.
+
+Запуск сайта:
+
+```bash
+venv/bin/python manage.py runserver 127.0.0.1:8000
+```
+
+Чтобы сайт открывался с других компьютеров сети — `venv/bin/python manage.py runserver 0.0.0.0:8000` и добавить адрес сервера в `ALLOWED_HOSTS` (`psa_backend/settings.py`). Это сервер для разработки, не для публичного хостинга.
+
+### Сайт и админка
+
+Сайт — http://127.0.0.1:8000/, админка — http://127.0.0.1:8000/admin/ (логин и пароль — те, что ввели при установке).
+
+Чтобы сразу перенести записи и файлы «Закупок» с psa.kz (~310 МБ, несколько минут):
+
+```bash
+powershell -ExecutionPolicy Bypass -File install.ps1 -ImportProcurement   # Windows
+bash install.sh --import-procurement                                      # Ubuntu
+```
+
+### Что создаётся в базе
+
+| Раздел | Подразделы (адрес) |
+|---|---|
+| Закупки `/procurement/` | Контактные лица `/procurement/contacts/`, Архив `/procurement/archive/`, Объявления `/procurement/announcements/`, Особый порядок `/procurement/special-procedure/` |
+| Маркетинг `/marketing/` | Предстоящие `/marketing/future/`, Архив `/marketing/archive/` |
+| Проекты `/projects/` | Кашаган, Карачаганак, Дунга |
+| Местное содержание `/local-content/`, Документы `/documents/`, Новости `/news/` | — |
+
+Подразделы создаются пустыми — записи добавляются в админке (или импортом с psa.kz для «Закупок»). Список разделов — в `backend/content/site_tree.py`.
+
+### После `git pull`
+
+Тот же скрипт — он безопасен при повторном запуске (ставит новые пакеты, применяет новые миграции, ничего не удаляет):
+
+```bash
+powershell -ExecutionPolicy Bypass -File install.ps1   # Windows
+bash install.sh                                        # Ubuntu
+```
+
+### Если случайно удалили раздел в админке
+
+В Wagtail нет корзины — удалённая страница удаляется вместе со всеми записями внутри. Сам раздел (или подраздел) с правильным адресом вернёт команда (в Ubuntu вместо `.\venv\Scripts\python.exe` — `venv/bin/python`):
+
+```powershell
+.\venv\Scripts\python.exe manage.py setup_site --dry-run   # сначала посмотреть, что будет сделано
+.\venv\Scripts\python.exe manage.py setup_site             # создать недостающее
+```
+
+Она же чинит адрес, если подраздел создали заново вручную и адрес получился другим (`arxiv` вместо `archive`): без правильных адресов `announcements` / `archive` / `future` не появляются кнопки «Перенести в архив». Записи, удалённые вместе с разделом, команда не восстанавливает — только из резервной копии базы (`db.sqlite3`), поэтому перед большими правками копию лучше сделать.
+
+Ручная установка по шагам (Git Bash) — в [backend/README.md](backend/README.md#установка).
+
 ## Запуск
 
 ```bash
@@ -26,7 +121,7 @@ cd backend
 
 Если после `git pull` что-то не открывается — сначала `./venv/Scripts/python.exe manage.py migrate`. Если добавлялся новый файл в `content/templatetags/` или `content/wagtail_hooks.py` — **перезапустить сервер** (автоперезагрузка новые файлы не подхватывает, будет ошибка 500 «is not a registered tag library»).
 
-Развернуть с нуля на новой машине — см. «Восстановить с нуля» в [backend/README.md](backend/README.md).
+Поставить с нуля на новой машине — см. [«Установка»](#установка) ниже.
 
 ## Что есть на сайте
 
@@ -36,6 +131,7 @@ cd backend
 | `/projects/` | Проекты: Кашаган, Карачаганак, Дунга — у каждого своя страница | админка |
 | `/local-content/` | Местное содержание — список + страница на запись | админка |
 | `/procurement/` | Закупки, как на psa.kz: Контактные лица, Архив, Объявления, Особый порядок | админка (перенесено с psa.kz) |
+| `/marketing/` | Маркетинг, как на psa.kz/marketing/: Предстоящие, Архив | админка |
 | `/documents/` | Документы — список + страница на документ | админка |
 | `/news/` | Новости — список + страница на новость | админка |
 | подвал | название, адрес, телефоны, e-mail, карта сайта, «Корпоративная почта» | админка → «Настройки» → «Подвал сайта» |
@@ -48,8 +144,8 @@ cd backend
 - **Вкладки «Русский / Қазақша / English»** у записей всех разделов: русский — основной; если перевод не заполнен, на сайте показывается русский.
 - **Текст собирается из блоков** (кнопка «+»): «Текст» (обычный редактор), «Таблица» (как в Excel), «Markdown», «HTML».
 - **Картинки и файлы** — библиотеки «Изображения» и «Документы». У записей «Закупок» отдельное поле «Файлы» (общее для всех языков).
-- **Закупки: «Перенести в архив» / «Вернуть в объявления»** — в меню «…» у записи в списке, в меню «…» редактора и рядом с «Опубликовать».
-- **Адреса разделов не менять**: `home`, `projects`, `local-content`, `procurement`, `documents`, `news`, а в «Закупках» — `announcements` и `archive`. На них завязаны меню и кнопки переноса.
+- **Закупки и Маркетинг: «Перенести в архив» / «Вернуть в объявления» («… в предстоящие»)** — в меню «…» у записи в списке, в меню «…» редактора и рядом с «Опубликовать».
+- **Адреса разделов не менять**: `home`, `projects`, `local-content`, `procurement`, `marketing`, `documents`, `news`, а в «Закупках» — `announcements` и `archive`, в «Маркетинге» — `future` и `archive`. На них завязаны меню и кнопки переноса.
 
 ## Закупки и перенос с psa.kz
 
@@ -69,7 +165,7 @@ psa-landing/
     │   ├── models.py        — типы страниц (разделы, записи), переводы, настройки подвала
     │   ├── blocks.py        — блоки текста (текст, таблица, Markdown, HTML), телефон
     │   ├── templatetags/    — вывод переводов (multilang.py), меню «Проекты» (navigation.py)
-    │   ├── wagtail_hooks.py, procurement_transfer.py — кнопки переноса в архив
+    │   ├── wagtail_hooks.py, archive_transfer.py — кнопки переноса в архив
     │   ├── management/commands/import_psa_procurement.py — импорт «Закупок» с psa.kz
     │   └── migrations/      — схема + стартовое дерево страниц, проекты, подвал
     ├── templates/         — base.html (шапка, меню, подвал), страницы разделов

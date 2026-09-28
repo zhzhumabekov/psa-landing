@@ -3,19 +3,19 @@ from wagtail import hooks
 from wagtail.admin.action_menu import ActionMenuItem
 from wagtail.admin.ui.menus.pages import PageMenuItem
 
-from .procurement_transfer import get_transfer, procurement_transfer, transfer_url
+from .archive_transfer import archive_transfer, get_transfer, transfer_url
 
 
 @hooks.register("register_admin_urls")
-def register_procurement_transfer_url():
+def register_archive_transfer_url():
     return [
-        path("procurement/transfer/<int:page_id>/", procurement_transfer, name="procurement_transfer"),
+        path("archive-transfer/<int:page_id>/", archive_transfer, name="archive_transfer"),
     ]
 
 
-class ProcurementTransferMenuItem(PageMenuItem):
-    """«Перенести в архив» / «Вернуть в объявления» — в меню «…» страницы
-    (список страниц и заголовок редактора)."""
+class ArchiveTransferMenuItem(PageMenuItem):
+    """«Перенести в архив» / «Вернуть в объявления» («… в предстоящие» —
+    в «Маркетинге») — в меню «…» страницы (список страниц и заголовок редактора)."""
 
     icon_name = "arrow-right-full"
     priority = 11  # сразу после штатного «Переместить»
@@ -35,21 +35,21 @@ class ProcurementTransferMenuItem(PageMenuItem):
 
 
 @hooks.register("register_page_listing_more_buttons")
-def procurement_transfer_listing_button(page, user, next_url=None):
-    yield ProcurementTransferMenuItem(page=page, next_url=next_url, user=user)
+def archive_transfer_listing_button(page, user, next_url=None):
+    yield ArchiveTransferMenuItem(page=page, next_url=next_url, user=user)
 
 
 @hooks.register("register_page_header_buttons")
-def procurement_transfer_header_button(page, user, view_name, next_url=None):
-    yield ProcurementTransferMenuItem(page=page, next_url=next_url, user=user)
+def archive_transfer_header_button(page, user, view_name, next_url=None):
+    yield ArchiveTransferMenuItem(page=page, next_url=next_url, user=user)
 
 
-class ProcurementTransferActionMenuItem(ActionMenuItem):
+class ArchiveTransferActionMenuItem(ActionMenuItem):
     """Тот же пункт в меню публикации внизу редактора записи."""
 
     order = 45
     icon_name = "arrow-right-full"
-    name = "action-procurement-transfer"
+    name = "action-archive-transfer"
 
     def _transfer(self, context):
         if context.get("view") != "edit":
@@ -70,5 +70,5 @@ class ProcurementTransferActionMenuItem(ActionMenuItem):
 
 
 @hooks.register("register_page_action_menu_item")
-def register_procurement_transfer_action():
-    return ProcurementTransferActionMenuItem()
+def register_archive_transfer_action():
+    return ArchiveTransferActionMenuItem()

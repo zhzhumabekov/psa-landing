@@ -1,9 +1,10 @@
 """Перенос раздела «Закупки» со старого сайта psa.kz/zakupki/ в Wagtail.
 
-    manage.py import_psa_procurement            # только если подразделов ещё нет
+    manage.py import_psa_procurement            # если в подразделах ещё нет записей
     manage.py import_psa_procurement --replace  # удалить текущие подразделы/записи и импортировать заново
 
-Создаёт под страницей «Закупки» четыре подраздела (как на psa.kz), в каждом —
+Заполняет под страницей «Закупки» четыре подраздела (как на psa.kz; уже
+созданные manage.py setup_site используются, недостающие создаются), в каждом —
 записи со всех страниц списка: дата, заголовок, текст (со страницы записи,
 если она есть), файлы — скачиваются в библиотеку документов Wagtail,
 коллекция «Закупки». Казахские заголовки/тексты берутся с psa.kz/kz/ там,
@@ -35,42 +36,21 @@ from wagtail.models import Collection
 from wagtail.rich_text import RichText
 
 from content.models import ProcurementIndexPage, ProcurementPage, ProcurementSectionPage
+from content.site_tree import PROCUREMENT_SECTIONS
 
 BASE_URL = "https://psa.kz"
 
+# Адреса подразделов на psa.kz; slug'и и заголовки — content/site_tree.py.
+PSA_PATHS = {
+    "contacts": ("/zakupki/otvetstvennyye_litsa/", True),  # (путь, есть казахская версия)
+    "archive": ("/zakupki/archiv/", False),
+    "announcements": ("/zakupki/announce/", True),
+    "special-procedure": ("/zakupki/osobiy-poriadok-osushestvlenija-zakupok/", True),
+}
 SECTIONS = [
-    {
-        "slug": "contacts",
-        "path": "/zakupki/otvetstvennyye_litsa/",
-        "title": "Контактные лица",
-        "title_kz": "Байланыс тұлғалары",
-        "title_en": "Contact persons",
-        "kz": True,
-    },
-    {
-        "slug": "archive",
-        "path": "/zakupki/archiv/",
-        "title": "Архив",
-        "title_kz": "Архив",
-        "title_en": "Archive",
-        "kz": False,
-    },
-    {
-        "slug": "announcements",
-        "path": "/zakupki/announce/",
-        "title": "Объявления",
-        "title_kz": "Хабарландырулар",
-        "title_en": "Announcements",
-        "kz": True,
-    },
-    {
-        "slug": "special-procedure",
-        "path": "/zakupki/osobiy-poriadok-osushestvlenija-zakupok/",
-        "title": "Особый порядок осуществления закупок",
-        "title_kz": "Сатып алуды жүзеге асырудың ерекше тәртібі",
-        "title_en": "Special procurement procedure",
-        "kz": True,
-    },
+    {"slug": slug, "title": title, "title_kz": title_kz, "title_en": title_en,
+     "path": PSA_PATHS[slug][0], "kz": PSA_PATHS[slug][1]}
+    for slug, title, title_kz, title_en in PROCUREMENT_SECTIONS
 ]
 
 INLINE_TAGS = {"a", "b", "strong", "i", "em", "u", "br", "span", "font", "sup", "sub"}
@@ -99,9 +79,9 @@ class Command(BaseCommand):
         index = ProcurementIndexPage.objects.first()
         if index is None:
             raise CommandError("Нет страницы «Закупки» (ProcurementIndexPage) — сначала manage.py migrate.")
-        if index.get_children().exists():
+        if ProcurementPage.objects.descendant_of(index).exists():
             if not replace:
-                raise CommandError("В «Закупках» уже есть страницы. Запустите с --replace, чтобы заменить их импортом.")
+                raise CommandError("В «Закупках» уже есть записи. Запустите с --replace, чтобы заменить их импортом.")
             self.stdout.write("Удаляю текущие страницы в «Закупках»…")
             for child in index.get_children():
                 child.delete()
@@ -365,11 +345,14 @@ class Command(BaseCommand):
     # ---------- запись в Wagtail ----------
 
     def create_section(self, index, spec, items):
-        section = ProcurementSectionPage(
-            title=spec["title"], slug=spec["slug"], title_kz=spec["title_kz"], title_en=spec["title_en"],
-        )
-        index.add_child(instance=section)
-        section.save_revision().publish()
+        # Пустые подразделы (от manage.py setup_site) заполняем, недостающие создаём.
+        section = ProcurementSectionPage.objects.child_of(index).filter(slug=spec["slug"]).first()
+        if section is None:
+            section = ProcurementSectionPage(
+                title=spec["title"], slug=spec["slug"], title_kz=spec["title_kz"], title_en=spec["title_en"],
+            )
+            index.add_child(instance=section)
+            section.save_revision().publish()
 
         used_slugs = set()
         for item in items:

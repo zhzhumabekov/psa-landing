@@ -2,14 +2,14 @@
 {% load wagtailcore_tags multilang %}
 
 {% block title %}{{ page.title }} — «PSA» ЖШС{% endblock %}
-{% block description %}{% if page.search_description %}{{ page.search_description }}{% else %}{{ page.title }} — закупки ТОО «PSA».{% endif %}{% endblock %}
+{% block description %}{% if page.search_description %}{{ page.search_description }}{% else %}{{ page.title }} — {{ section_nav_label|lower }} ТОО «PSA».{% endif %}{% endblock %}
 
 {% block content %}
 
-  <!-- ===== ЗАКУПКИ: ПОДРАЗДЕЛ ===== -->
+  <!-- ===== ПОДРАЗДЕЛ «ЗАКУПОК» / «МАРКЕТИНГА» ===== -->
   <section class="procurement procurement-section" id="procurement-section">
     <div class="container">
-      <a href="{% pageurl page.get_parent %}" class="back-link">← <span data-i18n="nav.procurement">Закупки</span></a>
+      <a href="{% pageurl page.get_parent %}" class="back-link">← <span data-i18n="nav.{{ section_nav_key }}">{{ section_nav_label }}</span></a>
       <h1 class="section-title">{% ml page "title" %}</h1>
 
       <div class="procurement-layout">
