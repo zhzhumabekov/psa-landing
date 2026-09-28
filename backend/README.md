@@ -2,6 +2,39 @@
 
 Сайт — Django-проект с CMS [Wagtail](https://wagtail.org/) 8.0. SQLite внутри (файл `db.sqlite3`, создаётся `migrate`), всё поставлено в venv — ничего не устанавливалось глобально.
 
+## Установка
+
+Нужен Python 3.12+. Команды — из папки `backend`, в Git Bash; для PowerShell пути те же, только через `\` (`.\venv\Scripts\python.exe`).
+
+### Первый раз (новая машина / потеряли venv)
+
+```bash
+cd backend
+python -m venv venv
+./venv/Scripts/python.exe -m pip install -r requirements.txt
+./venv/Scripts/python.exe manage.py migrate           # создаст db.sqlite3 и дерево страниц
+./venv/Scripts/python.exe manage.py createsuperuser   # логин/пароль для /admin/
+```
+
+Необязательно:
+
+```bash
+./venv/Scripts/python.exe seed.py                                # по одной тестовой записи в каждый раздел
+./venv/Scripts/python.exe manage.py import_psa_procurement       # перенести «Закупки» с psa.kz (~310 МБ файлов, см. ниже)
+```
+
+### После `git pull`
+
+Если в коммитах менялись `requirements.txt` или `content/migrations/`:
+
+```bash
+./venv/Scripts/python.exe -m pip install -r requirements.txt
+./venv/Scripts/python.exe manage.py migrate
+```
+
+- `ModuleNotFoundError: No module named 'wagtail'` (или другой пакет) — не выполнен `pip install`.
+- `Migration content.0001_initial is applied before its dependency ...` — локальная `db.sqlite3` создана по старой схеме (до перехода на Wagtail миграции переписывались с нуля). Базу нужно пересоздать: переименовать `db.sqlite3` (например, в `db.sqlite3.bak`), снова выполнить `migrate` и `createsuperuser`. Данные старой базы в новую не переносятся.
+
 ## Запуск
 
 ```bash
@@ -125,13 +158,4 @@ backend/
 
 `db.sqlite3` и `media/` (загруженные картинки и документы) — не в git, это данные, не код (см. `.gitignore`).
 
-## Восстановить с нуля (новая машина / потеряли venv)
-
-```bash
-cd backend
-python -m venv venv
-./venv/Scripts/pip.exe install -r requirements.txt
-./venv/Scripts/python.exe manage.py migrate      # создаст и дерево страниц
-DJANGO_SUPERUSER_USERNAME=admin DJANGO_SUPERUSER_EMAIL=admin@psa.local DJANGO_SUPERUSER_PASSWORD="НОВЫЙ_ПАРОЛЬ" ./venv/Scripts/python.exe manage.py createsuperuser --noinput
-./venv/Scripts/python.exe seed.py   # опционально, тестовые записи для проверки
-```
+Как поставить с нуля и обновиться после `git pull` — в разделе [«Установка»](#установка).
