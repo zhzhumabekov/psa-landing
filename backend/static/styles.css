@@ -58,7 +58,16 @@ body {
   color: var(--ink-900);
   background: var(--surface-100);
   -webkit-font-smoothing: antialiased;
+  /* Подвал прижат к низу экрана: при коротком контенте main растягивается. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
 }
+/* Свободное место забирает последняя секция страницы — её фон (белый у
+   «Закупок», «Маркетинга», «Новостей») доходит до подвала без серой полосы. */
+#main { flex: 1 0 auto; display: flex; flex-direction: column; }
+#main > :last-child { flex-grow: 1; }
 h1, h2, h3, h4, p, dl, dd { margin: 0; }
 ul { margin: 0; padding: 0; list-style: none; }
 a { color: inherit; text-decoration: none; }
