@@ -119,6 +119,15 @@ const translations = {
     "footer.sitemap": "Карта сайта",
     "footer.contacts": "Контакты",
     "footer.rights": "Все права защищены.",
+    "error_page.home": "На главную",
+    "error_page.back": "Назад",
+    "error_page.reload": "Обновить страницу",
+    "error_page.403.eyebrow": "Ошибка",
+    "error_page.403.title": "Доступ запрещён",
+    "error_page.403.text": "У вас нет прав для просмотра этой страницы.",
+    "error_page.404.eyebrow": "Ошибка",
+    "error_page.404.title": "Страница не найдена",
+    "error_page.404.text": "Возможно, она была удалена или перемещена, либо в адресе допущена ошибка.",
     "footer.mail": "Корпоративная почта",
   },
   kz: {
@@ -209,6 +218,15 @@ const translations = {
     "footer.sitemap": "Сайт картасы",
     "footer.contacts": "Байланыс деректері",
     "footer.rights": "Барлық құқықтар қорғалған.",
+    "error_page.home": "Басты бетке",
+    "error_page.back": "Артқа",
+    "error_page.reload": "Бетті жаңарту",
+    "error_page.403.eyebrow": "Қате",
+    "error_page.403.title": "Кіруге тыйым салынған",
+    "error_page.403.text": "Бұл бетті көруге құқығыңыз жоқ.",
+    "error_page.404.eyebrow": "Қате",
+    "error_page.404.title": "Бет табылмады",
+    "error_page.404.text": "Бет жойылған не басқа орынға ауыстырылған болуы мүмкін немесе мекенжайда қате бар.",
     "footer.mail": "Корпоративтік пошта",
   },
   en: {
@@ -297,6 +315,15 @@ const translations = {
     "footer.sitemap": "Site map",
     "footer.contacts": "Contacts",
     "footer.rights": "All rights reserved.",
+    "error_page.home": "Go to homepage",
+    "error_page.back": "Go back",
+    "error_page.reload": "Reload page",
+    "error_page.403.eyebrow": "Error",
+    "error_page.403.title": "Access denied",
+    "error_page.403.text": "You do not have permission to view this page.",
+    "error_page.404.eyebrow": "Error",
+    "error_page.404.title": "Page not found",
+    "error_page.404.text": "It may have been removed or moved, or the address may contain a typo.",
     "footer.mail": "Corporate mail",
   },
 };
@@ -645,6 +672,19 @@ if (contactForm) {
     document.getElementById(id).addEventListener("input", () => setFieldError(id, ""));
   });
 }
+
+
+/* ---------- Страницы ошибок (403/404) ---------- */
+
+document.querySelectorAll("[data-history-back]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    if (history.length > 1) history.back();
+    else location.href = "/";
+  });
+});
+document.querySelectorAll("[data-page-reload]").forEach((btn) => {
+  btn.addEventListener("click", () => location.reload());
+});
 
 
 /* ---------- Инициализация ---------- */

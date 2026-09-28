@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{# Django: handler404 (DEBUG = False). Просмотр при DEBUG = True — /_errors/404/. #}
+{% block title %}404 — «PSA» ЖШС{% endblock %}
+{% block description %}Бет табылмады.{% endblock %}
+{% block content %}
+  {% include "errors/site_error.html" with code="404" heading="Страница не найдена" text="Возможно, она была удалена или перемещена, либо в адресе допущена ошибка." %}
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends "errors/standalone.html" %}
+{# Django: handler400 — рендерит без request, поэтому без base.html. #}
+{% block title %}400 — «PSA» ЖШС{% endblock %}
+{% block content %}
+  {% include "errors/site_error.html" with code="400" heading="Некорректный запрос" text="Сервер не смог обработать запрос. Проверьте адрес и попробуйте ещё раз." %}
+{% endblock %}

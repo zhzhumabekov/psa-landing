@@ -1,0 +1,22 @@
+{% comment %}
+Блок страницы ошибки: {% include "errors/site_error.html" with code="404" heading="…" text="…" %}.
+Тексты на kz/en — ключи error_page.<code>.title / .text (в 403/404 — static/script.js,
+в 400/500/503 — словарь в errors/standalone.html). heading/text — русский вариант
+до срабатывания переключателя языков.
+{% endcomment %}
+<section class="error-page" aria-labelledby="error-title">
+  <div class="container error-page-inner">
+    <p class="error-code" aria-hidden="true">{{ code }}</p>
+    <p class="eyebrow" data-i18n="error_page.{{ code }}.eyebrow">{{ eyebrow|default:"Ошибка" }}</p>
+    <h1 class="section-title" id="error-title" data-i18n="error_page.{{ code }}.title">{{ heading }}</h1>
+    <p class="page-lead error-text" data-i18n="error_page.{{ code }}.text">{{ text }}</p>
+    <div class="error-actions">
+      {% if reload %}
+      <button type="button" class="btn btn-primary" data-page-reload data-i18n="error_page.reload">Обновить страницу</button>
+      {% else %}
+      <a href="/" class="btn btn-primary" data-i18n="error_page.home">На главную</a>
+      <button type="button" class="btn btn-ghost" data-history-back data-i18n="error_page.back">Назад</button>
+      {% endif %}
+    </div>
+  </div>
+</section>

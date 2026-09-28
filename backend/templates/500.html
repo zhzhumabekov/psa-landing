@@ -1,0 +1,6 @@
+{% extends "errors/standalone.html" %}
+{# Django: handler500 — рендерит без request и без базы, поэтому без base.html. #}
+{% block title %}500 — «PSA» ЖШС{% endblock %}
+{% block content %}
+  {% include "errors/site_error.html" with code="500" heading="Ошибка на сервере" text="Что-то пошло не так. Попробуйте обновить страницу через несколько минут." reload=True %}
+{% endblock %}

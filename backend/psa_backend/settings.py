@@ -63,6 +63,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
+    # Режим обслуживания (страница 503): manage.py maintenance on/off.
+    'content.maintenance.MaintenanceModeMiddleware',
 ]
 
 ROOT_URLCONF = 'psa_backend.urls'
@@ -175,3 +177,6 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+# Файл-флаг режима обслуживания (content/maintenance.py): есть файл — сайт отдаёт 503.
+MAINTENANCE_FLAG = BASE_DIR / 'maintenance.on'

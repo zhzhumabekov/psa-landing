@@ -13,7 +13,11 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
+    from content.error_views import error_preview
+
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # Просмотр страниц ошибок (при DEBUG Django показывает вместо них отладочные).
+    urlpatterns += [path('_errors/<int:code>/', error_preview)]
 
 # Всё остальное — дерево страниц Wagtail (главная и разделы). Должно быть
 # последним: ловит любые адреса.

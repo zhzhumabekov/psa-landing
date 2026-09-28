@@ -109,6 +109,25 @@ bash install.sh                                        # Ubuntu
 
 Ручная установка по шагам (Git Bash) — в [backend/README.md](backend/README.md#установка).
 
+## Страницы ошибок и режим обслуживания
+
+Свои страницы на трёх языках — `backend/templates/400.html`, `403.html`, `404.html`, `500.html`, `503.html`:
+
+- **403, 404** — в оформлении сайта (шапка с меню, подвал из админки). Тексты kz/en — ключи `error_page.*` в `static/script.js`.
+- **400, 500, 503** — облегчённые (`templates/errors/standalone.html`): без меню и без обращений к базе, чтобы открывались, даже когда сломалась база или сервер. Тексты kz/en — словарь прямо в `standalone.html`.
+
+Django показывает их только при `DEBUG = False`. В режиме разработки (`DEBUG = True`, как сейчас) вместо них — отладочные страницы Django, а свои можно посмотреть по адресам http://127.0.0.1:8000/_errors/404/ (и `400`, `403`, `500`, `503`).
+
+**Режим обслуживания (503)** — посетители видят «Сайт на техническом обслуживании», админка работает, а вошедшие в админку сотрудники видят сайт как обычно (можно проверить изменения до открытия):
+
+```powershell
+.\venv\Scripts\python.exe manage.py maintenance on       # включить (Ubuntu: venv/bin/python …)
+.\venv\Scripts\python.exe manage.py maintenance off      # выключить
+.\venv\Scripts\python.exe manage.py maintenance status   # проверить
+```
+
+Перезапуск сервера не нужен: режим включается файлом `backend/maintenance.on` (не в git).
+
 ## Запуск
 
 ```bash

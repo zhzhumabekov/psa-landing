@@ -1,0 +1,123 @@
+{% load static %}{% comment %}
+Каркас страниц 400 / 500 / 503: без base.html и без обращений к базе — Django
+рендерит 400 и 500 без request, а при 500/503 база может быть недоступна.
+Оформление — те же styles.css и шапка; меню и подвал из админки не выводятся.
+static/script.js не подключаем (он ждёт элементы base.html) — переключатель
+языков и кнопки здесь обслуживает маленький скрипт ниже со своим словарём.
+{% endcomment %}<!DOCTYPE html>
+<html lang="kz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>{% block title %}«PSA» ЖШС{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=PT+Sans:wght@400;700&family=PT+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="/" class="logo" aria-label="PSA — на главную">
+      <span class="logo-mark">PSA</span>
+      <span class="logo-caption">
+        <span class="logo-caption-line" data-i18n="header.org_line1">Полномочный орган</span>
+        <span class="logo-caption-line" data-i18n="header.org_line2">Правительства РК</span>
+      </span>
+    </a>
+    <div class="header-actions">
+      <div class="lang-switch" role="group" aria-label="Выбор языка">
+        <button type="button" class="lang-btn is-active" data-lang="kz" aria-pressed="true">ҚАЗ</button>
+        <button type="button" class="lang-btn" data-lang="ru" aria-pressed="false">РУС</button>
+        <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">ENG</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+{% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer site-footer--compact">
+  <div class="container footer-bottom">
+    <p>© {% now "Y" %} <span data-i18n="footer.org">ТОО «PSA»</span>. <span data-i18n="footer.rights">Все права защищены.</span></p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Тексты 400/500/503 и общие — здесь; 403/404 — в static/script.js.
+  var T = {
+    ru: {
+      "header.org_line1": "Полномочный орган", "header.org_line2": "Правительства РК",
+      "footer.org": "ТОО «PSA»", "footer.rights": "Все права защищены.",
+      "error_page.home": "На главную", "error_page.back": "Назад", "error_page.reload": "Обновить страницу",
+      "error_page.400.eyebrow": "Ошибка", "error_page.400.title": "Некорректный запрос",
+      "error_page.400.text": "Сервер не смог обработать запрос. Проверьте адрес и попробуйте ещё раз.",
+      "error_page.500.eyebrow": "Ошибка", "error_page.500.title": "Ошибка на сервере",
+      "error_page.500.text": "Что-то пошло не так. Попробуйте обновить страницу через несколько минут.",
+      "error_page.503.eyebrow": "Технические работы", "error_page.503.title": "Сайт на техническом обслуживании",
+      "error_page.503.text": "Мы проводим плановые работы. Сайт скоро снова будет доступен."
+    },
+    kz: {
+      "header.org_line1": "Қазақстан Республикасы", "header.org_line2": "Үкіметінің өкілетті органы",
+      "footer.org": "«PSA» ЖШС", "footer.rights": "Барлық құқықтар қорғалған.",
+      "error_page.home": "Басты бетке", "error_page.back": "Артқа", "error_page.reload": "Бетті жаңарту",
+      "error_page.400.eyebrow": "Қате", "error_page.400.title": "Қате сұрау",
+      "error_page.400.text": "Сервер сұрауды өңдей алмады. Мекенжайды тексеріп, қайталап көріңіз.",
+      "error_page.500.eyebrow": "Қате", "error_page.500.title": "Серверде қате орын алды",
+      "error_page.500.text": "Бірдеңе дұрыс болмады. Бірнеше минуттан кейін бетті жаңартып көріңіз.",
+      "error_page.503.eyebrow": "Техникалық жұмыстар", "error_page.503.title": "Сайтта техникалық қызмет көрсетілуде",
+      "error_page.503.text": "Жоспарлы жұмыстар жүргізілуде. Сайт жақында қайта қолжетімді болады."
+    },
+    en: {
+      "header.org_line1": "Authorized body", "header.org_line2": "of the RK Government",
+      "footer.org": "PSA LLP", "footer.rights": "All rights reserved.",
+      "error_page.home": "Go to homepage", "error_page.back": "Go back", "error_page.reload": "Reload page",
+      "error_page.400.eyebrow": "Error", "error_page.400.title": "Bad request",
+      "error_page.400.text": "The server could not process the request. Check the address and try again.",
+      "error_page.500.eyebrow": "Error", "error_page.500.title": "Server error",
+      "error_page.500.text": "Something went wrong. Please try reloading the page in a few minutes.",
+      "error_page.503.eyebrow": "Maintenance", "error_page.503.title": "Site under maintenance",
+      "error_page.503.text": "We are carrying out scheduled maintenance. The site will be back shortly."
+    }
+  };
+  var KEY = "psa-lang"; // тот же ключ, что в static/script.js
+
+  function apply(lang) {
+    if (!T[lang]) lang = "kz";
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      var value = T[lang][el.dataset.i18n] || T.ru[el.dataset.i18n];
+      if (value) el.textContent = value;
+    });
+    document.querySelectorAll(".lang-btn").forEach(function (btn) {
+      var active = btn.dataset.lang === lang;
+      btn.classList.toggle("is-active", active);
+      btn.setAttribute("aria-pressed", String(active));
+    });
+  }
+
+  document.querySelectorAll(".lang-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () { apply(btn.dataset.lang); });
+  });
+  document.querySelectorAll("[data-history-back]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      if (history.length > 1) history.back(); else location.href = "/";
+    });
+  });
+  document.querySelectorAll("[data-page-reload]").forEach(function (btn) {
+    btn.addEventListener("click", function () { location.reload(); });
+  });
+
+  var stored = null;
+  try { stored = localStorage.getItem(KEY); } catch (e) {}
+  apply(stored);
+})();
+</script>
+</body>
+</html>

@@ -1097,6 +1097,33 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .pagination .is-current { background: var(--ink-900); color: var(--text-inverse); font-weight: 700; }
 .pagination-gap { color: var(--text-secondary); }
 
+/* ---------- Страницы ошибок (400/403/404/500/503) ---------- */
+.error-page {
+  display: flex;
+  align-items: center;
+  background: var(--surface-0);
+  padding-block: var(--space-6);
+}
+.error-page-inner { width: 100%; }
+.error-code {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: clamp(88px, 18vw, 168px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--gold-500);
+  margin-bottom: var(--space-4);
+}
+.error-text { max-width: 56ch; }
+.error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+.site-footer--compact { padding-block: var(--space-4); }
+.site-footer--compact .footer-bottom { border-top: 0; margin-top: 0; padding-top: 0; }
+
 /* ---------- Подвал сайта ---------- */
 .site-footer {
   background: var(--ink-900);

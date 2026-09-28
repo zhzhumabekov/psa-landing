@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{# Django: handler403 (DEBUG = False). Просмотр при DEBUG = True — /_errors/403/. #}
+{% block title %}403 — «PSA» ЖШС{% endblock %}
+{% block description %}Кіруге тыйым салынған.{% endblock %}
+{% block content %}
+  {% include "errors/site_error.html" with code="403" heading="Доступ запрещён" text="У вас нет прав для просмотра этой страницы." %}
+{% endblock %}
