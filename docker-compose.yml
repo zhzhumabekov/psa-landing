@@ -1,0 +1,41 @@
+# Сервер: сайт (web) + Caddy (HTTPS-сертификат Let's Encrypt, статика, загруженные файлы).
+# Настройки — файл .env рядом (создаёт deploy/install.sh, образец — .env.example).
+#
+#   docker compose up -d --build     # собрать и запустить
+#   docker compose logs -f web       # логи сайта
+#   docker compose exec web python manage.py <команда>
+services:
+  web:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - data:/data                 # база db.sqlite3, загруженные файлы media/, флаг обслуживания
+      - static:/app/staticfiles    # собранная статика — её раздаёт Caddy
+    expose:
+      - "8000"
+
+  caddy:
+    image: caddy:2.11
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?в .env не задан SITE_ADDRESS}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - static:/srv/static:ro
+      - data:/srv/data:ro          # загруженные файлы (media/) — только чтение
+      - caddy_data:/data           # сертификаты Let's Encrypt
+      - caddy_config:/config
+
+volumes:
+  data:
+  static:
+  caddy_data:
+  caddy_config:

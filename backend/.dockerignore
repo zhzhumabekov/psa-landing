@@ -1,0 +1,11 @@
+# Не копировать в образ: локальное окружение, данные, кеши.
+venv/
+**/__pycache__/
+*.pyc
+db.sqlite3*
+media/
+staticfiles/
+maintenance.on
+.env
+install.ps1
+install.sh

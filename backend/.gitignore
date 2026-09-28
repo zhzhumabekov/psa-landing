@@ -7,3 +7,4 @@ media/
 django.log
 .env
 maintenance.on
+staticfiles/

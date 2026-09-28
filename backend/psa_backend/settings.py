@@ -10,22 +10,42 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
+def env_bool(name, default):
+    value = os.environ.get(name)
+    return default if value is None else value.strip().lower() in ('1', 'true', 'yes', 'on')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!6ew-y2l8#moqmnq!a0*8y9d*@+rac^i(bm5%)d8!uxbxzaw!$'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+def env_list(name, default=()):
+    value = os.environ.get(name)
+    return list(default) if value is None else [item.strip() for item in value.split(',') if item.strip()]
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+# Всё, что отличается на сервере, задаётся переменными окружения (в контейнере —
+# файл .env, см. .env.example и deploy/). Без переменных — локальная разработка,
+# как раньше: DEBUG включён, база и файлы в папке backend/.
+
+DEBUG = env_bool('DJANGO_DEBUG', True)
+
+_DEV_SECRET_KEY = 'django-insecure-!6ew-y2l8#moqmnq!a0*8y9d*@+rac^i(bm5%)d8!uxbxzaw!$'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', _DEV_SECRET_KEY)
+if not DEBUG and SECRET_KEY == _DEV_SECRET_KEY:
+    raise ImproperlyConfigured('DJANGO_SECRET_KEY не задан: с DEBUG = False нужен свой секретный ключ.')
+
+# 127.0.0.1/localhost нужны и на сервере — по ним ходит проверка здоровья контейнера.
+ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS') + ['127.0.0.1', 'localhost']
+CSRF_TRUSTED_ORIGINS = env_list('DJANGO_CSRF_TRUSTED_ORIGINS')
+
+# Данные сайта — база, загруженные файлы, флаг обслуживания. На сервере — том /data.
+DATA_DIR = Path(os.environ.get('DJANGO_DATA_DIR', BASE_DIR))
 
 
 # Application definition
@@ -94,9 +114,18 @@ WSGI_APPLICATION = 'psa_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DATA_DIR / 'db.sqlite3',
     }
 }
+if not DEBUG:
+    # Несколько процессов gunicorn пишут в одну SQLite: WAL и ожидание блокировки
+    # вместо ошибки «database is locked». Локально (DEBUG) — обычный режим, чтобы
+    # простое копирование db.sqlite3 оставалось полной копией базы.
+    DATABASES['default']['OPTIONS'] = {
+        'init_command': 'PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;',
+        'transaction_mode': 'IMMEDIATE',
+        'timeout': 20,
+    }
 
 
 # Password validation
@@ -135,10 +164,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+# Куда manage.py collectstatic собирает статику для веб-сервера (на сервере её раздаёт Caddy).
+STATIC_ROOT = Path(os.environ.get('DJANGO_STATIC_ROOT', BASE_DIR / 'staticfiles'))
 
 # Загруженные через Wagtail картинки и документы (images/, documents/)
 MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = DATA_DIR / 'media'
 
 # Редактор страниц Wagtail бывает с большим числом полей в одной форме.
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000
@@ -156,7 +187,7 @@ WAGTAILSEARCH_BACKENDS = {
 }
 
 # Полный адрес сайта для ссылок из админки (письма и т.п.), без /admin.
-WAGTAILADMIN_BASE_URL = 'http://127.0.0.1:8000'
+WAGTAILADMIN_BASE_URL = os.environ.get('WAGTAILADMIN_BASE_URL', 'http://127.0.0.1:8000')
 
 # Slug'и страниц транслитерируются в латиницу (/news/novaya-zapis/), а не
 # остаются кириллицей, которая в адресной строке превращается в %D0%BD...
@@ -172,11 +203,45 @@ WAGTAILDOCS_MAX_UPLOAD_SIZE = 20 * 1024 * 1024  # 20MB
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+# Письма (сброс пароля в админке, уведомления Wagtail): на сервере — SMTP, если в .env
+# задан EMAIL_HOST; иначе письма только выводятся в лог (docker compose logs web).
+if os.environ.get('EMAIL_HOST'):
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+            'OPTIONS': {
+                'host': os.environ['EMAIL_HOST'],
+                'port': int(os.environ.get('EMAIL_PORT', 587)),
+                'username': os.environ.get('EMAIL_HOST_USER', ''),
+                'password': os.environ.get('EMAIL_HOST_PASSWORD', ''),
+                'use_tls': env_bool('EMAIL_USE_TLS', True),
+            },
+        },
+    }
+else:
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+        },
+    }
+DEFAULT_FROM_EMAIL = SERVER_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
 
 # Файл-флаг режима обслуживания (content/maintenance.py): есть файл — сайт отдаёт 503.
-MAINTENANCE_FLAG = BASE_DIR / 'maintenance.on'
+MAINTENANCE_FLAG = DATA_DIR / 'maintenance.on'
+
+
+# Сервер (DEBUG = False): сайт за обратным прокси Caddy, который принимает HTTPS.
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # DJANGO_HTTPS=0 — если сайт открыт по IP без сертификата (только http).
+    SESSION_COOKIE_SECURE = CSRF_COOKIE_SECURE = env_bool('DJANGO_HTTPS', True)
+
+# Ошибки — в вывод процесса (docker compose logs web). Без этого при DEBUG = False
+# Django отправляет ошибки 500 только на почту администраторов, которой нет.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {'console': {'class': 'logging.StreamHandler'}},
+    'root': {'handlers': ['console'], 'level': 'WARNING'},
+    'loggers': {'django': {'handlers': ['console'], 'level': os.environ.get('DJANGO_LOG_LEVEL', 'WARNING'), 'propagate': False}},
+}

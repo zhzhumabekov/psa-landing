@@ -1,0 +1,31 @@
+# Caddy перед сайтом: HTTPS (сертификат Let's Encrypt выпускается и продлевается сам,
+# если SITE_ADDRESS — домен), статика и загруженные файлы, всё остальное — Django (web).
+# SITE_ADDRESS задаётся в .env: «psa.kz, www.psa.kz» — домены с HTTPS, «:80» — по IP без HTTPS.
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	request_body {
+		max_size 30MB
+	}
+
+	handle_path /static/* {
+		root * /srv/static
+		header Cache-Control "public, max-age=3600"
+		file_server
+	}
+
+	# Документы библиотеки Wagtail отдаёт Django по адресу /files/ (с учётом прав
+	# доступа к коллекциям) — напрямую из media/documents/ не раздаём.
+	handle /media/documents/* {
+		respond 404
+	}
+	handle_path /media/* {
+		root * /srv/data/media
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+
+	handle {
+		reverse_proxy web:8000
+	}
+}
