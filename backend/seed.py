@@ -11,8 +11,6 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "psa_backend.settings")
 django.setup()
 
 from content.models import (  # noqa: E402
-    DocumentPage,
-    DocumentsIndexPage,
     LocalContentIndexPage,
     LocalContentPage,
     NewsIndexPage,
@@ -35,13 +33,6 @@ print(
         slug="primer",
         date="2026-01-01",
         body="<p>Тестовая запись раздела «Местное содержание».</p>",
-    )),
-    seed(DocumentsIndexPage, DocumentPage(
-        title="Пример документа — отредактируйте в /admin/",
-        slug="primer",
-        category="Пример категории",
-        date="2026-01-01",
-        external_url="https://example.com/document.pdf",
     )),
     seed(NewsIndexPage, NewsPage(
         title="Пример новости — отредактируйте в /admin/",

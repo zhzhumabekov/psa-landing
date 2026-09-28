@@ -6,7 +6,6 @@
 по этому же списку заполняет manage.py import_psa_procurement.
 """
 from .models import (
-    DocumentsIndexPage,
     LocalContentIndexPage,
     MarketingIndexPage,
     MarketingSectionPage,
@@ -35,6 +34,5 @@ SITE_TREE = [
     (LocalContentIndexPage, "local-content", "Местное содержание", None, []),
     (ProcurementIndexPage, "procurement", "Закупки", ProcurementSectionPage, PROCUREMENT_SECTIONS),
     (MarketingIndexPage, "marketing", "Маркетинг", MarketingSectionPage, MARKETING_SECTIONS),
-    (DocumentsIndexPage, "documents", "Документы", None, []),
     (NewsIndexPage, "news", "Новости", None, []),
 ]

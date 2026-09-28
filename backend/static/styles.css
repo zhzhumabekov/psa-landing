@@ -221,6 +221,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .main-nav a,
 .main-nav summary {
   display: block;
+  white-space: nowrap; /* казахские названия длинные — без переноса на вторую строку */
   font-size: 14px;
   font-weight: 400;
   color: var(--ink-900);
@@ -728,9 +729,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
    Местное содержание / Закупки / Документы / Новости
    (контент — с бэкенда на Django, см. backend/, рендерится в script.js)
    ========================================================= */
-.local-content, .documents { background: var(--surface-100); }
+.local-content { background: var(--surface-100); }
 .procurement, .news { background: var(--surface-0); }
-.local-content, .procurement, .documents, .news { padding-block: var(--space-6); }
+.local-content, .procurement, .news { padding-block: var(--space-6); }
 
 .page-lead {
   font-size: 16px;

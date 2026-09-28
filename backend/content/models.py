@@ -70,7 +70,6 @@ class HomePage(Page):
         "content.LocalContentIndexPage",
         "content.ProcurementIndexPage",
         "content.MarketingIndexPage",
-        "content.DocumentsIndexPage",
         "content.NewsIndexPage",
     ]
 
@@ -343,57 +342,6 @@ class MarketingIndexPage(SectionIndexPage):
         verbose_name = "Раздел «Маркетинг»"
 
 
-class DocumentPage(TranslatedPage):
-    category = models.CharField("Категория", max_length=100, blank=True)
-    date = models.DateField("Дата", null=True, blank=True)
-    document = models.ForeignKey(
-        "wagtaildocs.Document",
-        verbose_name="Файл",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="+",
-    )
-    external_url = models.URLField("Ссылка (если файл не загружен)", blank=True)
-
-    title_kz = title_translation("қазақша")
-    category_kz = models.CharField("Категория (қазақша)", max_length=100, blank=True)
-    title_en = title_translation("English")
-    category_en = models.CharField("Категория (English)", max_length=100, blank=True)
-    translated_fields = ("title", "category")
-
-    template = "document_detail.html"
-    parent_page_types = ["content.DocumentsIndexPage"]
-    subpage_types = []
-
-    content_panels = Page.content_panels + [
-        FieldPanel("category"),
-        FieldPanel("date"),
-        FieldPanel("document"),
-        FieldPanel("external_url"),
-    ]
-
-    class Meta:
-        verbose_name = "Документ"
-        verbose_name_plural = "Документы"
-
-    @property
-    def file_url(self):
-        if self.document:
-            return self.document.url
-        return self.external_url
-
-
-class DocumentsIndexPage(SectionIndexPage):
-    template = "documents.html"
-    subpage_types = ["content.DocumentPage"]
-    entry_model = DocumentPage
-    entry_ordering = ("-date",)
-
-    class Meta:
-        verbose_name = "Раздел «Документы»"
-
-
 class NewsPage(TranslatedPage):
     date = models.DateField("Дата")
     excerpt = models.CharField("Краткое описание", max_length=400, blank=True)
@@ -436,7 +384,7 @@ class NewsIndexPage(SectionIndexPage):
 
 for _model in (
     ProjectPage, LocalContentPage, ProcurementSectionPage, ProcurementPage,
-    MarketingSectionPage, MarketingPage, DocumentPage, NewsPage,
+    MarketingSectionPage, MarketingPage, NewsPage,
 ):
     _model.edit_handler = _model.build_edit_handler()
 
