@@ -31,35 +31,38 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    'content',
+    'wagtail.contrib.redirects',
+    'wagtail.contrib.table_block',
+    'wagtail.embeds',
+    'wagtail.sites',
+    'wagtail.users',
+    'wagtail.snippets',
+    'wagtail.documents',
+    'wagtail.images',
+    'wagtail.search',
+    'wagtail.admin',
+    'wagtail',
+    'modelcluster',
+    'taggit',
+    'django_filters',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'corsheaders',
-    'content',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
-
-# Фронтенд теперь на том же origin (Django отдаёт index.html через
-# шаблонизатор, см. content/views.home) — CORS ему больше не нужен.
-# Открытый /api/ оставлен ради возможных внешних читателей (только
-# публичные GET, см. ReadOnlyModelViewSet). Перед реальным хостингом
-# сузить до конкретных origin через CORS_ALLOWED_ORIGINS, если API
-# останется публичным.
-CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'psa_backend.urls'
 
@@ -129,15 +132,37 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# Загруженные файлы документов (content.DocumentEntry.file)
+# Загруженные через Wagtail картинки и документы (images/, documents/)
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ],
+# Редактор страниц Wagtail бывает с большим числом полей в одной форме.
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10_000
+
+
+# Wagtail
+# https://docs.wagtail.org/en/stable/reference/settings.html
+
+WAGTAIL_SITE_NAME = 'ТОО «PSA»'
+
+WAGTAILSEARCH_BACKENDS = {
+    'default': {
+        'BACKEND': 'wagtail.search.backends.database',
+    }
 }
+
+# Полный адрес сайта для ссылок из админки (письма и т.п.), без /admin.
+WAGTAILADMIN_BASE_URL = 'http://127.0.0.1:8000'
+
+# Slug'и страниц транслитерируются в латиницу (/news/novaya-zapis/), а не
+# остаются кириллицей, которая в адресной строке превращается в %D0%BD...
+WAGTAIL_ALLOW_UNICODE_SLUGS = False
+
+# Интерфейс админки Wagtail — на русском.
+WAGTAILADMIN_PERMITTED_LANGUAGES = [('ru', 'Русский')]
+
+WAGTAILDOCS_EXTENSIONS = ['csv', 'doc', 'docx', 'odt', 'pdf', 'pptx', 'rtf', 'txt', 'xls', 'xlsx', 'zip']
+WAGTAILDOCS_MAX_UPLOAD_SIZE = 20 * 1024 * 1024  # 20MB
 
 
 # Email

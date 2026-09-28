@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load wagtailcore_tags multilang %}
 
 {% block title %}Жергілікті қамту — «PSA» ЖШС{% endblock %}
 {% block description %}«PSA» ЖШС жобаларындағы қазақстандық қамтуды дамыту жөніндегі бақылау туралы ақпарат.{% endblock %}
@@ -13,15 +14,15 @@
       <p class="page-lead" data-i18n="local_content.lead">Материалы о выполнении обязательств по казахстанскому содержанию в проектах СРП.</p>
 
       <div class="feed-list">
-        {% for entry in local_content_entries %}
+        {% for entry in entries %}
         <article class="feed-item">
-          <div class="feed-item-meta"><span>{{ entry.date|date:"d E Y" }} г.</span></div>
-          <h3 class="feed-item-title"><a href="{% url 'local_content_detail' entry.pk %}">{{ entry.title }}</a></h3>
-          {% if entry.body %}<div class="feed-item-text">{{ entry.body|truncatewords_html:25 }}</div>{% endif %}
-          <a class="feed-item-link" href="{% url 'local_content_detail' entry.pk %}">Читать полностью →</a>
+          <div class="feed-item-meta"><span>{% ml_date entry.date %}</span></div>
+          <h3 class="feed-item-title"><a href="{% pageurl entry %}">{% ml entry "title" %}</a></h3>
+          {% ml_preview entry as preview %}{% if preview %}<div class="feed-item-text">{{ preview }}</div>{% endif %}
+          <a class="feed-item-link" href="{% pageurl entry %}" data-i18n="feed.read_more">Читать полностью →</a>
         </article>
         {% empty %}
-        <p class="feed-empty">Пока нет опубликованных материалов.</p>
+        <p class="feed-empty" data-i18n="local_content.empty">Пока нет опубликованных материалов.</p>
         {% endfor %}
       </div>
     </div>

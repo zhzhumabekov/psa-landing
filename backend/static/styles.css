@@ -799,15 +799,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   line-height: 22px;
   color: var(--text-secondary);
 }
-/* Содержимое из rich-text редактора в админке (Quill) — см. content/widgets.py */
+/* Содержимое из rich-text редактора Wagtail (RichTextField, фильтр |richtext) */
 .feed-item-text p { margin: 0 0 var(--space-2); }
 .feed-item-text p:last-child { margin-bottom: 0; }
 .feed-item-text ul,
 .feed-item-text ol { margin: 0 0 var(--space-2); padding-left: 1.25em; }
 .feed-item-text li { margin-bottom: var(--space-1); }
 .feed-item-text a { color: var(--steel-700); text-decoration: underline; }
-.feed-item-text strong { color: var(--ink-900); }
-.feed-item-text h2, .feed-item-text h3 {
+.feed-item-text strong, .feed-item-text b { color: var(--ink-900); }
+.feed-item-text h2, .feed-item-text h3, .feed-item-text h4 {
   font-family: var(--font-serif);
   color: var(--ink-900);
   margin: 0 0 var(--space-1);
@@ -819,8 +819,48 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   margin: var(--space-2) 0;
   display: block;
 }
+/* Форматы картинок Wagtail: «Во всю ширину» / «Слева» / «Справа» */
+.feed-item-text .richtext-image.left { float: left; max-width: 50%; margin: var(--space-1) var(--space-3) var(--space-2) 0; }
+.feed-item-text .richtext-image.right { float: right; max-width: 50%; margin: var(--space-1) 0 var(--space-2) var(--space-3); }
+.feed-item-text .richtext-image.full-width { width: 100%; }
+.detail-body::after { content: ""; display: block; clear: both; }
+/* Блоки StreamField (content/blocks.py): текст, таблица, Markdown, HTML */
+.content-block + .content-block { margin-top: var(--space-3); }
+.content-block--table,
+.content-block--markdown,
+.content-block--html { overflow-x: auto; }
+.feed-item-text table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ink-900);
+  margin: var(--space-2) 0;
+}
+.feed-item-text caption {
+  caption-side: top;
+  text-align: left;
+  font-weight: 700;
+  padding-bottom: var(--space-2);
+}
+.feed-item-text th,
+.feed-item-text td {
+  border: 1px solid var(--border-200);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  vertical-align: top;
+}
+.feed-item-text td { background: var(--surface-0); }
+.feed-item-text thead th { background: var(--border-200); font-weight: 700; }
+.feed-item-text tbody tr:nth-child(even) td { background: var(--surface-100); }
+.feed-item-text .htCenter { text-align: center; }
+.feed-item-text .htRight { text-align: right; }
+.feed-item-text .htMiddle { vertical-align: middle; }
+.feed-item-text .htBottom { vertical-align: bottom; }
+.feed-item-text .responsive-object { position: relative; margin: var(--space-2) 0; }
+.feed-item-text .responsive-object iframe { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-/* ---------- Страница отдельной записи (напр. /local-content/<id>/) ---------- */
+/* ---------- Страница отдельной записи (напр. /news/<slug>/) ---------- */
 .back-link {
   display: inline-block;
   margin-bottom: var(--space-4);

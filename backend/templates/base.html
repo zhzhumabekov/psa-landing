@@ -1,4 +1,4 @@
-{% load static %}
+{% load static wagtailcore_tags wagtailuserbar %}
 <!DOCTYPE html>
 <html lang="kz">
 <head>
@@ -19,7 +19,7 @@
 <header class="site-header">
   <div class="container header-inner">
 
-    <a href="{% url 'home' %}#hero" class="logo" aria-label="PSA — на главную">
+    <a href="{% slugurl 'home' %}#hero" class="logo" aria-label="PSA — на главную">
       <span class="logo-mark">PSA</span>
       <span class="logo-caption">
         <span class="logo-caption-line" data-i18n="header.org_line1">Полномочный орган</span>
@@ -29,22 +29,22 @@
 
     <nav class="main-nav" id="main-nav" aria-label="Основное меню">
       <ul>
-        <li><a href="{% url 'home' %}#about" data-i18n="nav.about">О компании</a></li>
+        <li><a href="{% slugurl 'home' %}#about" data-i18n="nav.about">О компании</a></li>
         <li class="has-dropdown">
           <details>
             <summary data-i18n="nav.projects">Проекты</summary>
             <ul class="dropdown">
-              <li><a href="{% url 'home' %}#kashagan" data-i18n="project.kashagan.title">Кашаган</a></li>
-              <li><a href="{% url 'home' %}#karachaganak" data-i18n="project.karachaganak.title">Карачаганак</a></li>
-              <li><a href="{% url 'home' %}#dunga" data-i18n="project.dunga.title">Дунга</a></li>
+              <li><a href="{% slugurl 'home' %}#kashagan" data-i18n="project.kashagan.title">Кашаган</a></li>
+              <li><a href="{% slugurl 'home' %}#karachaganak" data-i18n="project.karachaganak.title">Карачаганак</a></li>
+              <li><a href="{% slugurl 'home' %}#dunga" data-i18n="project.dunga.title">Дунга</a></li>
             </ul>
           </details>
         </li>
-        <li><a href="{% url 'local_content_page' %}" data-i18n="nav.local_content">Местное содержание</a></li>
-        <li><a href="{% url 'procurement_page' %}" data-i18n="nav.procurement">Закупки</a></li>
-        <li><a href="{% url 'documents_page' %}" data-i18n="nav.documents">Документы</a></li>
-        <li><a href="{% url 'news_page' %}" data-i18n="nav.news">Новости</a></li>
-        <li><a href="{% url 'home' %}#contacts" data-i18n="nav.contacts">Контакты</a></li>
+        <li><a href="{% slugurl 'local-content' %}" data-i18n="nav.local_content">Местное содержание</a></li>
+        <li><a href="{% slugurl 'procurement' %}" data-i18n="nav.procurement">Закупки</a></li>
+        <li><a href="{% slugurl 'documents' %}" data-i18n="nav.documents">Документы</a></li>
+        <li><a href="{% slugurl 'news' %}" data-i18n="nav.news">Новости</a></li>
+        <li><a href="{% slugurl 'home' %}#contacts" data-i18n="nav.contacts">Контакты</a></li>
       </ul>
     </nav>
 
@@ -82,6 +82,8 @@
   <h2 class="project-modal-title" id="project-modal-title"></h2>
   <div class="project-modal-body" id="project-modal-body"></div>
 </dialog>
+
+{% wagtailuserbar %}
 
 <script src="{% static 'script.js' %}" defer></script>
 

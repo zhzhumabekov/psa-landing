@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags multilang %}
+
+{% block title %}{{ page.title }} — «PSA» ЖШС{% endblock %}
+{% block description %}{% if page.search_description %}{{ page.search_description }}{% else %}{% ml_preview page 30 "ru" as preview %}{{ preview|striptags }}{% endif %}{% endblock %}
+
+{% block content %}
+
+  <!-- ===== ЗАКУПКИ: ЗАПИСЬ ===== -->
+  <section class="procurement procurement-detail" id="procurement-detail">
+    <div class="container container--narrow">
+      <a href="{% pageurl page.get_parent %}" class="back-link">← <span data-i18n="nav.procurement">Закупки</span></a>
+
+      <p class="eyebrow" data-i18n="procurement.eyebrow">Закупки</p>
+      <h1 class="section-title">{% ml page "title" %}</h1>
+      <div class="feed-item-meta">
+        <span class="badge{% if page.is_closed %} is-closed{% endif %}" data-i18n="procurement.status.{% if page.is_closed %}closed{% else %}open{% endif %}">{{ page.status }}</span>
+        {% if page.deadline %}<span>{% ml_date page.deadline "deadline" %}</span>{% endif %}
+      </div>
+
+      {% ml_blocks page "description" as description %}{% if description %}<div class="feed-item-text detail-body">{{ description }}</div>{% endif %}
+      {% if page.url %}<a class="feed-item-link" href="{{ page.url }}" target="_blank" rel="noopener noreferrer" data-i18n="feed.details">Подробнее ↗</a>{% endif %}
+    </div>
+  </section>
+
+{% endblock %}

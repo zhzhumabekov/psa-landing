@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags multilang %}
+
+{% block title %}{{ page.title }} — «PSA» ЖШС{% endblock %}
+{% block description %}{% if page.search_description %}{{ page.search_description }}{% else %}{{ page.title }}{% endif %}{% endblock %}
+
+{% block content %}
+
+  <!-- ===== ДОКУМЕНТЫ: ЗАПИСЬ ===== -->
+  <section class="documents documents-detail" id="documents-detail">
+    <div class="container container--narrow">
+      <a href="{% pageurl page.get_parent %}" class="back-link">← <span data-i18n="nav.documents">Документы</span></a>
+
+      {% if page.category %}<p class="eyebrow">{% ml page "category" %}</p>{% else %}<p class="eyebrow" data-i18n="documents.eyebrow">Документы</p>{% endif %}
+      <h1 class="section-title">{% ml page "title" %}</h1>
+      {% if page.date %}<p class="page-lead">{% ml_date page.date %}</p>{% endif %}
+
+      {% if page.file_url %}<a class="feed-item-link" href="{{ page.file_url }}" target="_blank" rel="noopener noreferrer" data-i18n="documents.open">Открыть документ ↗</a>{% endif %}
+    </div>
+  </section>
+
+{% endblock %}

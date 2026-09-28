@@ -98,6 +98,15 @@ const translations = {
     "errors.email_invalid": "Проверьте формат e-mail.",
     "errors.message_required": "Пожалуйста, добавьте сообщение.",
     "form.success": "Спасибо! Сообщение отправлено — мы свяжемся с вами в ближайшее время.",
+    "feed.read_more": "Читать полностью →",
+    "feed.details": "Подробнее ↗",
+    "documents.open": "Открыть документ ↗",
+    "local_content.empty": "Пока нет опубликованных материалов.",
+    "procurement.empty": "Пока нет объявленных закупок.",
+    "documents.empty": "Пока нет опубликованных документов.",
+    "news.empty": "Пока нет опубликованных новостей.",
+    "procurement.status.open": "Открыт",
+    "procurement.status.closed": "Завершён",
   },
   kz: {
     "nav.about": "Компания туралы",
@@ -154,6 +163,27 @@ const translations = {
     "errors.email_invalid": "E-mail форматын тексеріңіз.",
     "errors.message_required": "Хабарлама мәтінін қосыңыз.",
     "form.success": "Рақмет! Хабарлама жіберілді — жақын арада хабарласамыз.",
+    "local_content.eyebrow": "Жергілікті қамту",
+    "local_content.title": "Қазақстандық қамтуды дамыту",
+    "local_content.lead": "ӨБК жобаларындағы қазақстандық қамту бойынша міндеттемелердің орындалуы туралы материалдар.",
+    "procurement.eyebrow": "Сатып алулар",
+    "procurement.title": "Тауарларды, жұмыстарды және қызметтерді сатып алу",
+    "procurement.lead": "«PSA» ЖШС-нің ағымдағы және аяқталған сатып алу рәсімдері.",
+    "documents.eyebrow": "Құжаттар",
+    "documents.title": "Құжаттар",
+    "documents.lead": "Нормативтік актілер, есептер және басқа да ресми құжаттар.",
+    "news.eyebrow": "Жаңалықтар",
+    "news.title": "Жаңалықтар",
+    "news.lead": "Компания мен жобалардың жаңалықтары.",
+    "feed.read_more": "Толығырақ оқу →",
+    "feed.details": "Толығырақ ↗",
+    "documents.open": "Құжатты ашу ↗",
+    "local_content.empty": "Әзірге жарияланған материалдар жоқ.",
+    "procurement.empty": "Әзірге жарияланған сатып алулар жоқ.",
+    "documents.empty": "Әзірге жарияланған құжаттар жоқ.",
+    "news.empty": "Әзірге жарияланған жаңалықтар жоқ.",
+    "procurement.status.open": "Ашық",
+    "procurement.status.closed": "Аяқталды",
   },
   en: {
     "nav.about": "About",
@@ -208,6 +238,27 @@ const translations = {
     "errors.email_invalid": "Please check the e-mail format.",
     "errors.message_required": "Please add a message.",
     "form.success": "Thank you! Your message has been sent — we will get back to you soon.",
+    "local_content.eyebrow": "Local content",
+    "local_content.title": "Developing Kazakhstani content",
+    "local_content.lead": "Materials on meeting Kazakhstani content commitments in PSA projects.",
+    "procurement.eyebrow": "Procurement",
+    "procurement.title": "Procurement of goods, works and services",
+    "procurement.lead": "Current and completed procurement procedures of PSA LLP.",
+    "documents.eyebrow": "Documents",
+    "documents.title": "Documents",
+    "documents.lead": "Regulations, reports and other official documents.",
+    "news.eyebrow": "News",
+    "news.title": "News",
+    "news.lead": "Company and project news.",
+    "feed.read_more": "Read more →",
+    "feed.details": "Details ↗",
+    "documents.open": "Open document ↗",
+    "local_content.empty": "No materials published yet.",
+    "procurement.empty": "No procurement announced yet.",
+    "documents.empty": "No documents published yet.",
+    "news.empty": "No news published yet.",
+    "procurement.status.open": "Open",
+    "procurement.status.closed": "Closed",
   },
 };
 
@@ -322,6 +373,19 @@ function translate(key) {
   return (translations[currentLang] && translations[currentLang][key]) || translations.ru[key] || key;
 }
 
+// Контент из админки Wagtail: сервер отдаёт все заполненные переводы
+// поля в группе [data-ml] (см. content/templatetags/multilang.py) —
+// показываем вариант текущего языка, если его нет — русский.
+function applyContentLanguage(lang) {
+  document.querySelectorAll("[data-ml]").forEach((group) => {
+    const variants = Array.from(group.children).filter((el) => el.dataset.mlLang);
+    const shown = variants.some((el) => el.dataset.mlLang === lang) ? lang : "ru";
+    variants.forEach((el) => {
+      el.hidden = el.dataset.mlLang !== shown;
+    });
+  });
+}
+
 function applyLanguage(lang) {
   if (!translations[lang]) return;
   currentLang = lang;
@@ -337,6 +401,8 @@ function applyLanguage(lang) {
   document.querySelectorAll("[data-i18n-aria-label]").forEach((el) => {
     el.setAttribute("aria-label", translate(el.dataset.i18nAriaLabel));
   });
+
+  applyContentLanguage(lang);
 
   document.querySelectorAll(".lang-btn").forEach((btn) => {
     const isActive = btn.dataset.lang === lang;

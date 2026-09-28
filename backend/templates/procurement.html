@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load wagtailcore_tags multilang %}
 
 {% block title %}Сатып алулар — «PSA» ЖШС{% endblock %}
 {% block description %}«PSA» ЖШС тауарларды, жұмыстарды және қызметтерді сатып алу туралы ақпарат.{% endblock %}
@@ -13,18 +14,18 @@
       <p class="page-lead" data-i18n="procurement.lead">Действующие и завершённые процедуры закупок ТОО «PSA».</p>
 
       <div class="feed-list">
-        {% for entry in procurement_entries %}
+        {% for entry in entries %}
         <article class="feed-item">
           <div class="feed-item-meta">
-            <span class="badge{% if entry.status == 'Завершён' %} is-closed{% endif %}">{{ entry.status }}</span>
-            {% if entry.deadline %}<span>До {{ entry.deadline|date:"d E Y" }} г.</span>{% endif %}
+            <span class="badge{% if entry.is_closed %} is-closed{% endif %}" data-i18n="procurement.status.{% if entry.is_closed %}closed{% else %}open{% endif %}">{{ entry.status }}</span>
+            {% if entry.deadline %}<span>{% ml_date entry.deadline "deadline" %}</span>{% endif %}
           </div>
-          <h3 class="feed-item-title">{{ entry.title }}</h3>
-          {% if entry.description %}<div class="feed-item-text">{{ entry.description|safe }}</div>{% endif %}
-          {% if entry.url %}<a class="feed-item-link" href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">Подробнее ↗</a>{% endif %}
+          <h3 class="feed-item-title"><a href="{% pageurl entry %}">{% ml entry "title" %}</a></h3>
+          {% ml_preview entry as preview %}{% if preview %}<div class="feed-item-text">{{ preview }}</div>{% endif %}
+          <a class="feed-item-link" href="{% pageurl entry %}" data-i18n="feed.read_more">Читать полностью →</a>
         </article>
         {% empty %}
-        <p class="feed-empty">Пока нет объявленных закупок.</p>
+        <p class="feed-empty" data-i18n="procurement.empty">Пока нет объявленных закупок.</p>
         {% endfor %}
       </div>
     </div>

@@ -1,20 +1,21 @@
 {% extends "base.html" %}
+{% load wagtailcore_tags multilang %}
 
-{% block title %}{{ entry.title }} — «PSA» ЖШС{% endblock %}
-{% block description %}{{ entry.body|striptags|truncatewords:30 }}{% endblock %}
+{% block title %}{{ page.title }} — «PSA» ЖШС{% endblock %}
+{% block description %}{% if page.search_description %}{{ page.search_description }}{% else %}{% ml_preview page 30 "ru" as preview %}{{ preview|striptags }}{% endif %}{% endblock %}
 
 {% block content %}
 
   <!-- ===== МЕСТНОЕ СОДЕРЖАНИЕ: ЗАПИСЬ ===== -->
   <section class="local-content local-content-detail" id="local-content-detail">
     <div class="container container--narrow">
-      <a href="{% url 'local_content_page' %}" class="back-link">← Местное содержание</a>
+      <a href="{% pageurl page.get_parent %}" class="back-link">← <span data-i18n="nav.local_content">Местное содержание</span></a>
 
-      <p class="eyebrow">Местное содержание</p>
-      <h1 class="section-title">{{ entry.title }}</h1>
-      <p class="page-lead">{{ entry.date|date:"d E Y" }} г.</p>
+      <p class="eyebrow" data-i18n="local_content.eyebrow">Местное содержание</p>
+      <h1 class="section-title">{% ml page "title" %}</h1>
+      <p class="page-lead">{% ml_date page.date %}</p>
 
-      {% if entry.body %}<div class="feed-item-text detail-body">{{ entry.body|safe }}</div>{% endif %}
+      {% ml_blocks page "body" as body %}{% if body %}<div class="feed-item-text detail-body">{{ body }}</div>{% endif %}
     </div>
   </section>
 
