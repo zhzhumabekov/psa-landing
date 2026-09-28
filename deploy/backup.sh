@@ -1,26 +1,24 @@
 #!/usr/bin/env bash
-# Резервная копия данных сайта (база + загруженные файлы) в backups/psa-<дата>.tar.gz.
-# Сайт при этом не останавливается: база копируется штатным механизмом SQLite (backup),
-# а не простым копированием файла, — копия целостная даже во время записи.
+# Резервная копия сайта (база + загруженные файлы) — и на сервере (её видно в админке:
+# «Настройки» → «Резервные копии»), и в папке backups/ рядом с проектом.
+# Сайт при этом не останавливается. То же самое делает кнопка «Создать копию» в админке.
 #
-#   sudo bash deploy/backup.sh
+#   sudo bash deploy/backup.sh              # база и файлы
+#   sudo bash deploy/backup.sh --no-media   # только база
 #
-# Восстановление — см. README.md, раздел «Сервер», «Резервные копии».
+# Ежедневно в 3:00 — строка в «sudo crontab -e»:
+#   0 3 * * * cd /путь/к/psa-landing && bash deploy/backup.sh
 set -euo pipefail
 
 cd "$(dirname "$(readlink -f "$0")")/.."
 
 mkdir -p backups
 chmod 700 backups
-FILE="backups/psa-$(date +%Y-%m-%d_%H%M).tar.gz"
 
-docker compose exec -T web python -c "
-import sqlite3
-src = sqlite3.connect('/data/db.sqlite3'); dst = sqlite3.connect('/data/backup.sqlite3')
-src.backup(dst); dst.close(); src.close()
-"
-docker compose exec -T web tar -C /data -czf - backup.sqlite3 media > "$FILE"
-docker compose exec -T web rm -f /data/backup.sqlite3
-chmod 600 "$FILE"
+# Последняя строка вывода команды — путь к копии внутри контейнера.
+REMOTE="$(docker compose exec -T web python manage.py backup_create "$@" | tail -n 1 | tr -d '\r')"
+NAME="$(basename "$REMOTE")"
+docker compose cp "web:$REMOTE" "backups/$NAME"
+chmod 600 "backups/$NAME"
 
-echo "Готово: $FILE ($(du -h "$FILE" | cut -f1))"
+echo "Готово: backups/$NAME ($(du -h "backups/$NAME" | cut -f1)). Копия есть и в админке — «Настройки» → «Резервные копии»."

@@ -4,6 +4,7 @@ venv/
 *.pyc
 db.sqlite3*
 media/
+backups/
 staticfiles/
 .env
 install.ps1

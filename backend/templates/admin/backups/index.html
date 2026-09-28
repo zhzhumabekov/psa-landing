@@ -1,0 +1,68 @@
+{% extends "wagtailadmin/base.html" %}
+{% comment %}Админка: «Настройки» → «Резервные копии» (content/backup_views.py).{% endcomment %}
+{% load wagtailadmin_tags %}
+{% block titletag %}Резервные копии{% endblock %}
+{% block content %}
+    {% include "wagtailadmin/shared/header.html" with title="Резервные копии" icon="download" %}
+
+    <div class="nice-padding">
+        {% if restored %}
+            <div class="help-block help-info" role="status">
+                <p><b>Восстановлено из копии {{ restored }}.</b> Если вас попросили войти заново — это нормально: вход действует по данным из копии.</p>
+                {% if safety %}<p>Копия состояния до восстановления: <b>{{ safety }}</b> — если что-то не так, восстановите её.</p>{% endif %}
+            </div>
+        {% endif %}
+
+        <p>Копия — это база сайта (страницы, настройки, обращения, пользователи) и, по желанию, загруженные файлы. Сейчас: база {{ db_size|filesizeformat }}, файлы {{ media_size|filesizeformat }}. Копии хранятся на сервере в <code>{{ backup_dir }}</code> — скачивайте важные копии к себе: если сервер пропадёт, пропадут и они.</p>
+
+        <div class="psa-backup-actions">
+            <form action="{% url 'backups_create' %}" method="POST" class="psa-backup-card">
+                {% csrf_token %}
+                <h2 class="w-h3">Создать копию</h2>
+                <label class="psa-backup-check"><input type="checkbox" name="include_media" value="1" checked> Вместе с загруженными файлами (картинки, документы)</label>
+                <button type="submit" class="button">Создать копию</button>
+            </form>
+
+            <form action="{% url 'backups_upload' %}" method="POST" enctype="multipart/form-data" class="psa-backup-card">
+                {% csrf_token %}
+                <h2 class="w-h3">Загрузить копию</h2>
+                <p class="help">Файл .zip, скачанный здесь же (с этого или другого сервера), или файл базы .sqlite3.</p>
+                <input type="file" name="file" accept=".zip,.sqlite3" required>
+                <button type="submit" class="button button-secondary">Загрузить</button>
+            </form>
+        </div>
+
+        <h2 class="w-h3">Копии</h2>
+        {% if backups %}
+            <table class="listing">
+                <thead>
+                    <tr><th>Копия</th><th>Создана</th><th>Размер</th><th>Состав</th><th></th></tr>
+                </thead>
+                <tbody>
+                    {% for b in backups %}
+                    <tr>
+                        <td>
+                            <b>{{ b.name }}</b>
+                            {% if b.automatic %}<br><small>автоматическая — сделана перед восстановлением</small>{% endif %}
+                            {% if b.error %}<br><small class="error-message">{{ b.error }}</small>{% endif %}
+                        </td>
+                        <td>{{ b.modified|date:"d.m.Y H:i" }}</td>
+                        <td>{{ b.size|filesizeformat }}</td>
+                        <td>{% if b.includes_media %}база + файлы ({{ b.media_files }}){% else %}только база{% endif %}</td>
+                        <td class="psa-backup-row-actions">
+                            <a class="button button-small button-secondary" href="{% url 'backups_download' b.name %}">Скачать</a>
+                            {% if not b.error %}<a class="button button-small" href="{% url 'backups_restore' b.name %}">Восстановить</a>{% endif %}
+                            <form action="{% url 'backups_delete' b.name %}" method="POST" onsubmit="return confirm('Удалить копию {{ b.name|escapejs }}?');">
+                                {% csrf_token %}
+                                <button type="submit" class="button button-small no">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Копий пока нет.</p>
+        {% endif %}
+    </div>
+{% endblock %}

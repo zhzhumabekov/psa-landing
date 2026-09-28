@@ -20,7 +20,7 @@ COPY . .
 # Непривилегированный пользователь. /data и /app/staticfiles создаются заранее с его
 # владельцем — Docker перенесёт владельца в новые тома при первом запуске.
 RUN useradd --system --uid 10001 --home-dir /app app \
-    && mkdir -p /data/media /app/staticfiles \
+    && mkdir -p /data/media /data/backups /app/staticfiles \
     && chown -R app:app /data /app/staticfiles \
     && chmod +x docker-entrypoint.sh
 USER app
@@ -33,4 +33,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
     CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/admin/login/', timeout=4)"]
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
-CMD ["sh", "-c", "exec gunicorn psa_backend.wsgi:application --bind 0.0.0.0:8000 --workers ${GUNICORN_WORKERS:-3} --timeout 60 --access-logfile - --error-logfile -"]
+CMD ["sh", "-c", "exec gunicorn psa_backend.wsgi:application --bind 0.0.0.0:8000 --workers ${GUNICORN_WORKERS:-3} --timeout 300 --access-logfile - --error-logfile -"]

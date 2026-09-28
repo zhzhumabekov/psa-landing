@@ -1,0 +1,29 @@
+{% extends "wagtailadmin/base.html" %}
+{% comment %}Подтверждение восстановления из копии (content/backup_views.py).{% endcomment %}
+{% load wagtailadmin_tags %}
+{% block titletag %}Восстановить: {{ name }}{% endblock %}
+{% block content %}
+    {% include "wagtailadmin/shared/header.html" with title="Восстановить из копии" subtitle=name icon="download" %}
+
+    <div class="nice-padding">
+        <ul>
+            <li>Создана: <b>{% if created %}{{ created|date:"d.m.Y H:i" }}{% else %}неизвестно (файл базы){% endif %}</b>, размер {{ size|filesizeformat }}.</li>
+            <li>Состав: {% if manifest.includes_media %}база и загруженные файлы ({{ manifest.media_files }}){% else %}только база{% endif %}.</li>
+        </ul>
+
+        <div class="help-block help-warning">
+            <p><b>Текущие данные сайта будут заменены данными из копии</b>: страницы, настройки, обращения, пользователи и пароли{% if manifest.includes_media %}, а если отмечено ниже — и загруженные файлы{% endif %}. Всё, что изменено после создания копии, пропадёт.</p>
+            <p>Перед восстановлением сайт сам сделает копию текущего состояния — к нему можно будет вернуться. После восстановления, возможно, придётся войти заново.</p>
+        </div>
+
+        <form action="" method="POST">
+            {% csrf_token %}
+            {% if manifest.includes_media %}
+                <p><label><input type="checkbox" name="restore_media" value="1" checked> Восстановить и загруженные файлы (картинки, документы)</label></p>
+            {% endif %}
+            <p><label><input type="checkbox" name="confirm" value="1" required> Понимаю, что текущие данные будут заменены</label></p>
+            <button type="submit" class="button no">Восстановить</button>
+            <a href="{% url 'backups_index' %}" class="button button-secondary">Отмена</a>
+        </form>
+    </div>
+{% endblock %}

@@ -1,8 +1,9 @@
 from django.templatetags.static import static
-from django.urls import path
+from django.urls import path, reverse
 from django.utils.html import format_html
 from wagtail import hooks
 from wagtail.admin.action_menu import ActionMenuItem
+from wagtail.admin.menu import MenuItem
 from wagtail.admin.panels import FieldPanel
 from wagtail.admin.ui.menus.pages import PageMenuItem
 from wagtail.admin.ui.tables import BooleanColumn, Column, DateColumn
@@ -11,6 +12,7 @@ from wagtail.admin.viewsets.model import ModelViewSet
 from wagtail.permission_policies import ModelPermissionPolicy
 from wagtail.permissions import register_permission_policy
 
+from . import backup_views
 from .archive_transfer import archive_transfer, get_transfer, transfer_url
 from .mail import email_test
 from .models import ContactMessage
@@ -21,6 +23,12 @@ def register_archive_transfer_url():
     return [
         path("archive-transfer/<int:page_id>/", archive_transfer, name="archive_transfer"),
         path("email-test/", email_test, name="email_test"),
+        path("backups/", backup_views.backups_index, name="backups_index"),
+        path("backups/create/", backup_views.backup_create, name="backups_create"),
+        path("backups/upload/", backup_views.backup_upload, name="backups_upload"),
+        path("backups/<str:name>/download/", backup_views.backup_download, name="backups_download"),
+        path("backups/<str:name>/restore/", backup_views.backup_restore, name="backups_restore"),
+        path("backups/<str:name>/delete/", backup_views.backup_delete, name="backups_delete"),
     ]
 
 
@@ -158,3 +166,15 @@ class ContactMessageViewSet(ModelViewSet):
 @hooks.register("register_admin_viewset")
 def register_contact_messages():
     return ContactMessageViewSet()
+
+
+# ---------- «Настройки» → «Резервные копии» (content/backup_views.py) ----------
+
+class SuperuserMenuItem(MenuItem):
+    def is_shown(self, request):
+        return request.user.is_superuser
+
+
+@hooks.register("register_settings_menu_item")
+def register_backups_menu_item():
+    return SuperuserMenuItem("Резервные копии", reverse("backups_index"), icon_name="download", order=900)

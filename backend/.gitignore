@@ -4,6 +4,7 @@ __pycache__/
 # база и её резервные копии (db.sqlite3.bak-…) — данные, не код
 db.sqlite3*
 media/
+/backups/
 django.log
 .env
 staticfiles/
