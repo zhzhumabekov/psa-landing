@@ -14,6 +14,8 @@ static/script.js не подключаем (он ждёт элементы base.
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=PT+Serif:wght@400;700&family=PT+Sans:wght@400;700&family=PT+Mono&display=swap" rel="stylesheet">
+<link rel="icon" href="{% static 'img/favicon-32.png' %}" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
 <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
@@ -21,7 +23,7 @@ static/script.js не подключаем (он ждёт элементы base.
 <header class="site-header">
   <div class="container header-inner">
     <a href="/" class="logo" aria-label="PSA — на главную">
-      <span class="logo-mark">PSA</span>
+      <img class="logo-img" src="{% static 'img/psa-logo.png' %}" alt="PSA" width="126" height="32">
       <span class="logo-caption">
         <span class="logo-caption-line" data-i18n="header.org_line1">Полномочный орган</span>
         <span class="logo-caption-line" data-i18n="header.org_line2">Правительства РК</span>

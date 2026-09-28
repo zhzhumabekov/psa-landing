@@ -194,11 +194,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   gap: var(--space-2);
   flex-shrink: 0;
 }
-.logo-mark {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 26px;
-  color: var(--ink-900);
+.logo-img {
+  display: block;
+  height: 32px;
+  width: auto;
 }
 .logo-caption {
   display: none;
@@ -1140,16 +1139,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 @media (min-width: 720px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1024px) { .footer-grid { grid-template-columns: 1.3fr 1fr 1.2fr; } }
 
+.footer-logo img { display: block; height: 40px; width: auto; }
 .footer-logo {
   display: inline-block;
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 32px;
-  line-height: 1;
-  color: var(--text-inverse);
-  text-decoration: none;
-  padding-bottom: var(--space-2);
-  border-bottom: 2px solid var(--gold-500);
+  line-height: 0;
   margin-bottom: var(--space-3);
 }
 .footer-org { font-weight: 700; margin: 0 0 var(--space-1); }

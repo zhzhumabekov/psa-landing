@@ -1,5 +1,10 @@
-{% comment %}Логотип PSA для админки: надпись засечками + золотая черта, как логотип в подвале сайта. Цвет надписи — currentColor (задаётся в static/psa-admin.css).{% endcomment %}
-<svg class="psa-admin-logo" role="img" aria-label="PSA" viewBox="0 0 120 64" xmlns="http://www.w3.org/2000/svg">
-  <text x="60" y="38" text-anchor="middle" font-size="36" fill="currentColor">PSA</text>
-  <rect x="38" y="48" width="44" height="3" rx="1.5" fill="#B8924B"/>
-</svg>
+{% load static %}{% comment %}
+Логотип PSA в админке (static/img/). Какой вариант виден — решает static/psa-admin.css:
+светлая тема — оригинальный (чёрные буквы), тёмная — со светлыми буквами,
+в свёрнутом боковом меню — только узор.
+{% endcomment %}
+<span class="psa-admin-logo">
+  <img class="psa-admin-logo__full" src="{% static 'img/psa-logo.png' %}" alt="PSA" width="158" height="40">
+  <img class="psa-admin-logo__light" src="{% static 'img/psa-logo-white.png' %}" alt="PSA" width="158" height="40">
+  <img class="psa-admin-logo__mark" src="{% static 'img/psa-mark.png' %}" alt="PSA" width="50" height="40">
+</span>
