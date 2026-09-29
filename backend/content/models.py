@@ -449,8 +449,20 @@ class EmailSettings(BaseGenericSetting):
                   "Пусто — письма не отправляются, а только пишутся в лог сервера.",
     )
     port = models.PositiveIntegerField("Порт", default=587)
-    security = models.CharField("Шифрование", max_length=10, choices=SECURITY_CHOICES, default="tls")
-    username = models.CharField("Логин", max_length=255, blank=True, help_text="Обычно — полный адрес почтового ящика.")
+    security = models.CharField(
+        "Шифрование", max_length=10, choices=SECURITY_CHOICES, default="tls",
+        help_text="Exchange: порт 587 и STARTTLS — без шифрования Exchange не принимает логин и пароль.",
+    )
+    verify_certificate = models.BooleanField(
+        "Проверять сертификат сервера", default=True,
+        help_text="Снимите галочку, если у почтового сервера самоподписанный сертификат "
+                  "(обычно у Exchange внутри организации). Соединение останется зашифрованным, "
+                  "но подлинность сервера не проверяется — только для сервера во внутренней сети.",
+    )
+    username = models.CharField(
+        "Логин", max_length=255, blank=True,
+        help_text="Обычно — полный адрес почтового ящика. Exchange: также ДОМЕН\\логин или логин@домен.local.",
+    )
     password = models.CharField(
         "Пароль", max_length=255, blank=True,
         help_text="Для Gmail, Mail.ru, Яндекса — «пароль приложения» из настроек безопасности ящика, а не обычный пароль.",
@@ -466,6 +478,7 @@ class EmailSettings(BaseGenericSetting):
             FieldPanel("host"),
             FieldPanel("port"),
             FieldPanel("security"),
+            FieldPanel("verify_certificate"),
             FieldPanel("username"),
             FieldPanel("password", widget=forms.PasswordInput(render_value=True)),
         ], heading="Сервер"),

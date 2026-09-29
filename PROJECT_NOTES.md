@@ -259,3 +259,10 @@
 
 - Hero на весь экран (`min-height: calc(100svh - var(--header-height))`), фон — `<canvas id="hero-canvas">` с «картой изолиний» (`static/hero.js`, подключается только в `index.html` через новый `{% block scripts %}` в `base.html`): 3D-шум Перлина (фиксированное зерно), 30 уровней, каждый 5-й золотой; marching squares с пропуском уровней вне min/max клетки; курсор — гауссов «бугор» (кольца вокруг) + голубая подсветка линий (`source-atop`), клик/касание — расходящаяся волна. ~30 кадров/с, стоп при невидимом hero (IntersectionObserver) и скрытой вкладке, `prefers-reduced-motion` — один статичный кадр. Проверено: 0 long tasks > 50 мс при движении курсора, 0 кадров при прокрутке вниз, без ошибок JS; телефон (kz), reduced-motion.
 - Затемнение под текстом (`.hero::before`), появление текста по очереди, кнопка «вниз» к `#about`. Старое SVG-украшение `.hero-decor` удалено.
+
+## SMTP для Exchange on-premises (2026-09-29)
+
+- Пользователь не мог подключить `mail.psa.kz` (Exchange, `10.242.110.4`, сервер `PSA-ALA-VS-1003.psa.local`). Было сохранено: порт 587 + «Без шифрования», логин `zh.zhumabekov`. Диагностика `smtplib`: до STARTTLS `AUTH GSSAPI NTLM` (smtplib их не умеет → «No suitable authentication method found»); после STARTTLS появляется `LOGIN`; сертификат самоподписанный (CN/SAN — `PSA-ALA-VS-1003[.psa.local]`, до 2028-03-21) → `CERTIFICATE_VERIFY_FAILED`. 465 — не SSL. Порт 25 — то же, плюс анонимный приём.
+- Сделано: `EmailSettings.verify_certificate` (миграция 0016, по умолчанию вкл.), `InsecureSMTPBackend` в `mail.py` (свой `ssl_context` без проверки), `explain_error()` — подсказки к типичным ошибкам на странице тестового письма и в `ContactMessage.email_error`.
+- Вход с сохранённым паролем (3 формата логина: `zh.zhumabekov`, `…@psa.kz`, `PSA\…`) → `535 5.7.3` все три. Дальше не перебирал — риск блокировки учётки в AD. Настройки пользователя в базе НЕ менял (шифрование так и стоит «нет»). Бэкап — `%TEMP%/db.before-smtp-verify.sqlite3`.
+- Тест в shell: `SMTPBackend(...)` при `MAILERS` требует явно `username=''`, `password=''`, `use_ssl` — иначе `EMAIL_HOST_USER setting is not available when MAILERS is defined`.

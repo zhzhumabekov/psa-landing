@@ -7,7 +7,7 @@
 
     <div class="nice-padding">
         {% if config.host %}
-            <p>Сервер: <b>{{ config.host }}:{{ config.port }}</b>, шифрование: {{ config.get_security_display }}, логин: {{ config.username|default:"—" }}.</p>
+            <p>Сервер: <b>{{ config.host }}:{{ config.port }}</b>, шифрование: {{ config.get_security_display }}{% if not config.verify_certificate %} (сертификат не проверяется){% endif %}, логин: {{ config.username|default:"—" }}.</p>
         {% else %}
             <p class="help-block help-warning">SMTP-сервер не указан — сначала заполните и сохраните настройки почты.</p>
         {% endif %}

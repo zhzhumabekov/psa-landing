@@ -8,6 +8,8 @@ EmailSettings и передаёт письма стандартному SMTP-б�
 email_test — страница админки «Отправить тестовое письмо».
 """
 import logging
+import smtplib
+import ssl
 from email.utils import formataddr
 
 from django.conf import settings
@@ -37,13 +39,55 @@ def sender_address(config):
     return formataddr((config.from_name, address)) if config.from_name else address
 
 
+class InsecureSMTPBackend(SMTPBackend):
+    """SMTP с шифрованием, но без проверки сертификата — для самоподписанного
+    сертификата внутреннего сервера (Exchange). Включается снятием галочки
+    «Проверять сертификат сервера»."""
+
+    @property
+    def ssl_context(self):
+        context = ssl.create_default_context()
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
+        return context
+
+
+def explain_error(error):
+    """Текст ошибки SMTP + подсказка, что поправить в настройках."""
+    text = str(error)
+    if isinstance(error, ssl.SSLCertVerificationError):
+        hint = ("У сервера самоподписанный или чужой сертификат. Если это сервер вашей организации "
+                "(например, Exchange), снимите галочку «Проверять сертификат сервера».")
+    elif isinstance(error, ssl.SSLError) and "WRONG_VERSION_NUMBER" in text:
+        hint = "Сервер на этом порту не работает по SSL — выберите «STARTTLS» (порт 587) или проверьте порт."
+    elif isinstance(error, smtplib.SMTPException) and "No suitable authentication method" in text:
+        hint = ("Сервер не предлагает вход по логину и паролю без шифрования — выберите «STARTTLS» "
+                "(Exchange до шифрования разрешает только вход Windows — NTLM, его сайт не поддерживает).")
+    elif isinstance(error, smtplib.SMTPNotSupportedError):
+        hint = "Сервер не поддерживает выбранное шифрование или вход — проверьте «Шифрование» и порт."
+    elif isinstance(error, smtplib.SMTPAuthenticationError):
+        hint = ("Сервер отклонил логин или пароль. Проверьте пароль; для Exchange попробуйте логин в виде "
+                "адреса почты, ДОМЕН\\логин или логин@домен.local. Если не помогает — у администратора "
+                "почты: разрешён ли вход по паролю (Basic/LOGIN) для этого ящика и коннектора.")
+    elif isinstance(error, (smtplib.SMTPSenderRefused, smtplib.SMTPDataError)) and "5.7.60" in text:
+        hint = "Сервер не разрешает отправлять от этого адреса — «Адрес отправителя» должен совпадать с ящиком логина."
+    elif isinstance(error, smtplib.SMTPRecipientsRefused) and "5.7.54" in text:
+        hint = "Сервер не пересылает письма на внешние адреса без входа — укажите логин и пароль."
+    elif isinstance(error, (TimeoutError, ConnectionRefusedError, OSError)) and not isinstance(error, smtplib.SMTPException):
+        hint = "Нет соединения с сервером — проверьте адрес и порт и что сервер доступен из сети, где работает сайт."
+    else:
+        return text
+    return f"{text} — {hint}"
+
+
 class SiteEmailBackend(BaseEmailBackend):
     def send_messages(self, email_messages):
         if not email_messages:
             return 0
         config = EmailSettings.load()
         if config.host:
-            backend = SMTPBackend(
+            backend_class = SMTPBackend if config.verify_certificate else InsecureSMTPBackend
+            backend = backend_class(
                 alias=self.alias,
                 host=config.host,
                 port=config.port,
@@ -92,7 +136,7 @@ def email_test(request):
                     )
                 except Exception as error:  # noqa: BLE001 — показываем пользователю любой ответ сервера
                     logger.warning("Тестовое письмо не отправлено: %s", error)
-                    messages.error(request, f"Письмо не отправлено: {error}")
+                    messages.error(request, f"Письмо не отправлено: {explain_error(error)}")
                 else:
                     messages.success(request, f"Тестовое письмо отправлено на {to}. Проверьте почту (и папку «Спам»).")
                     return redirect(settings_url)

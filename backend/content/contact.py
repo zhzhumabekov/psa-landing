@@ -22,6 +22,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from .mail import explain_error
 from .models import BASE_LANG, LANGUAGES, ContactFormSettings, ContactMessage
 
 logger = logging.getLogger(__name__)
@@ -73,7 +74,7 @@ def notify(entry):
         EmailMessage(config.subject, body, to=recipients, reply_to=[entry.email]).send()
     except Exception as error:  # noqa: BLE001 — любая ошибка SMTP не должна терять обращение
         logger.exception("Письмо об обращении #%s не отправлено", entry.pk)
-        entry.email_error = str(error)
+        entry.email_error = explain_error(error)
     else:
         entry.email_sent = True
         entry.email_error = ""
